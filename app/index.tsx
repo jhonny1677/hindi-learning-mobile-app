@@ -24,7 +24,7 @@ import UserProfile, { UserProfileData } from '../components/UserProfile';
 import OfflineIndicator from '../components/OfflineIndicator';
 import SocialFeatures from '../components/SocialFeatures';
 import QuestsAndBadges from '../components/QuestsAndBadges';
-import GoogleAuth, { GoogleUser } from '../components/GoogleAuth';
+import CredentialLogin from '../components/CredentialLogin';
 import DemoCredentials from '../components/DemoCredentials';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useOfflineMode } from '../hooks/useOfflineMode';
@@ -69,7 +69,7 @@ const App = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showDemoCredentials, setShowDemoCredentials] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
-  const [googleUser, setGoogleUser] = useState<GoogleUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [streak, setStreak] = useState(0);
   
   const { error, executeWithErrorHandling, clearError } = useErrorHandler();
@@ -134,8 +134,8 @@ const App = () => {
     queueAction('progress', { streak: newStreak, timestamp: Date.now() });
   };
 
-  const handleGoogleAuthSuccess = (user: GoogleUser) => {
-    setGoogleUser(user);
+  const handleAuthSuccess = (user: any) => {
+    setCurrentUser(user);
     // Sync data when user signs in
     queueAction('auth', { user, timestamp: Date.now() });
   };
@@ -500,7 +500,7 @@ const App = () => {
                 onPress={() => setShowAuth(true)}
               >
                 <Text style={styles.topButtonText}>
-                  {googleUser ? '👤 Account' : '🔑 Sign In'}
+                  {currentUser ? '👤 Account' : '🔑 Sign In'}
                 </Text>
               </TouchableOpacity>
 
@@ -671,10 +671,10 @@ const App = () => {
           userStats={getUserStats()}
         />
 
-        <GoogleAuth
+        <CredentialLogin
           visible={showAuth}
           onClose={() => setShowAuth(false)}
-          onAuthSuccess={handleGoogleAuthSuccess}
+          onAuthSuccess={handleAuthSuccess}
         />
 
         {showDemoCredentials && (

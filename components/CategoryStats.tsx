@@ -23,7 +23,16 @@ const CategoryStats: React.FC<CategoryStatsProps> = ({ difficulty, onPress }) =>
     const fetchStats = async () => {
       try {
         const progress = await databaseService.getDifficultyProgress(difficulty);
-        setStats(progress);
+        const percentage = progress.totalWords > 0 
+          ? Math.round((progress.learnedWords / progress.totalWords) * 100)
+          : 0;
+        
+        setStats({
+          total: progress.totalWords,
+          completed: progress.learnedWords,
+          percentage: percentage,
+          isComplete: progress.learnedWords >= progress.totalWords
+        });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
         setStats({
