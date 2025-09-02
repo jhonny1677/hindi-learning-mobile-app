@@ -81,14 +81,19 @@ const CredentialLogin: React.FC<CredentialLoginProps> = ({
         await webStorage.setItem('hindi_learning_user', JSON.stringify(user));
         onAuthSuccess(user);
 
-        Alert.alert(
-          '✅ Login Successful!',
-          `Welcome back, ${user.name}! Continue your Hindi learning journey.`,
-          [{ text: 'Continue', onPress: onClose }]
-        );
-        
+        // Clear form and close modal immediately
         setEmail('');
         setPassword('');
+        onClose();
+        
+        // Show success message after closing modal (non-blocking)
+        setTimeout(() => {
+          Alert.alert(
+            '✅ Login Successful!',
+            `Welcome back, ${user.name}! Continue your Hindi learning journey.`,
+            [{ text: 'Great!' }]
+          );
+        }, 100);
       } else {
         Alert.alert(
           'Invalid Credentials',

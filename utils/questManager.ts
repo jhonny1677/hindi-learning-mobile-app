@@ -124,6 +124,9 @@ class QuestManager {
         totalAnswers: 0
       };
 
+      console.log('📈 Updating daily stats - before:', JSON.stringify(dailyStats));
+      console.log('📈 Updating stat:', stat, 'with value:', value);
+
       // Reset if it's a new day
       if (dailyStats.date !== today) {
         dailyStats = {
@@ -139,6 +142,7 @@ class QuestManager {
       // Update the specific stat
       dailyStats[stat] = (dailyStats[stat] || 0) + value;
 
+      console.log('📈 Updated daily stats - after:', JSON.stringify(dailyStats));
       await webStorage.setItem(DAILY_STATS_KEY, JSON.stringify(dailyStats));
     } catch (error) {
       console.error('Error updating daily stats:', error);
@@ -185,6 +189,8 @@ class QuestManager {
     try {
       const badgesData = await webStorage.getItem(BADGES_STORAGE_KEY);
       let badges: Badge[] = badgesData ? JSON.parse(badgesData) : [];
+      
+      console.log('🏆 Checking badges...', badges.length === 0 ? 'No badges found, initializing' : `Found ${badges.length} badges`);
       
       // Initialize badges if they don't exist
       if (badges.length === 0) {
@@ -243,7 +249,12 @@ class QuestManager {
 
       const unlockedBadges: string[] = [];
 
-      if (!dailyStats) return unlockedBadges;
+      if (!dailyStats) {
+        console.log('🏆 No daily stats found, skipping badge check');
+        return unlockedBadges;
+      }
+      
+      console.log('🏆 Daily stats:', dailyStats);
 
       for (const badge of badges) {
         if (badge.unlockedAt) continue; // Already unlocked
@@ -256,7 +267,8 @@ class QuestManager {
         
         switch (badge.id) {
           case 'first_word':
-            shouldUnlock = dailyStats.wordsLearned >= 1;
+            // Award this badge on the very first correct answer, not just daily stats
+            shouldUnlock = dailyStats.wordsLearned >= 1 || dailyStats.correctAnswers >= 1;
             break;
           case 'fast_learner':
             shouldUnlock = dailyStats.wordsLearned >= 10;
@@ -278,6 +290,7 @@ class QuestManager {
         }
 
         if (shouldUnlock) {
+          console.log('🏆 Unlocking badge:', badge.name);
           badge.unlockedAt = new Date().toISOString();
           unlockedBadges.push(badge.name);
 
@@ -285,6 +298,7 @@ class QuestManager {
           await this.addXP(badge.xpValue, 'Badge Earned', `Earned badge: ${badge.name}`);
           
           // Show notification
+          console.log('🏆 Showing badge notification:', badge.name);
           notificationManager.showBadgeUnlocked(badge.name, badge.description, badge.xpValue, badge.rarity);
         }
       }

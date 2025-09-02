@@ -74,6 +74,7 @@ const App = () => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [streak, setStreak] = useState(0);
+  const [realTimeStats, setRealTimeStats] = useState<{wordsLearned: number; studyTime: number; streak: number} | null>(null);
   
   // Notification state
   const [notification, setNotification] = useState<{
@@ -116,6 +117,13 @@ const App = () => {
     };
   }, []);
 
+  // Reload real-time stats when social features are shown
+  useEffect(() => {
+    if (showSocial && currentUser) {
+      loadRealTimeStats();
+    }
+  }, [showSocial]);
+
   const checkOnboardingStatus = async () => {
     try {
       const completed = await webStorage.getItem(ONBOARDING_COMPLETE_KEY);
@@ -129,20 +137,27 @@ const App = () => {
 
   const loadUserProfile = async () => {
     await executeWithErrorHandling(async () => {
-      // Check if user is logged in first
-      const storedUser = await webStorage.getItem('hindi_learning_user');
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        setCurrentUser(user);
-        await handleAuthSuccess(user);
-        return;
-      }
+      try {
+        // Check if user is logged in first
+        const storedUser = await webStorage.getItem('hindi_learning_user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          setCurrentUser(user);
+          await handleAuthSuccess(user);
+          return;
+        }
 
-      // Fall back to stored profile
-      const stored = await webStorage.getItem('hindi_learning_profile');
-      if (stored) {
-        const profile: UserProfileData = JSON.parse(stored);
-        setUserProfile(profile);
+        // Fall back to stored profile
+        const stored = await webStorage.getItem('hindi_learning_profile');
+        if (stored) {
+          const profile: UserProfileData = JSON.parse(stored);
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+        // Clear potentially corrupted data
+        await webStorage.removeItem('hindi_learning_user');
+        await webStorage.removeItem('hindi_learning_profile');
       }
     }, 'Loading user profile');
   };
@@ -188,6 +203,9 @@ const App = () => {
     setUserProfile(profile);
     setStreak(profile.streakCount);
     
+    // Load real-time stats after authentication
+    await loadRealTimeStats();
+    
     // Update quest manager with user level and XP
     if (user.role === 'Advanced User') {
       // Simulate advanced user progress for quest system
@@ -197,6 +215,33 @@ const App = () => {
     
     // Sync data when user signs in
     queueAction('auth', { user, timestamp: Date.now() });
+  };
+
+  const loadRealTimeStats = async () => {
+    try {
+      console.log('🔄 Loading real-time stats from storage...');
+      const dailyStatsData = await webStorage.getItem('hindi_learning_daily_stats');
+      console.log('🔄 Raw daily stats data:', dailyStatsData);
+      
+      if (dailyStatsData) {
+        const dailyStats = JSON.parse(dailyStatsData);
+        console.log('🔄 Parsed daily stats:', JSON.stringify(dailyStats));
+        
+        const newStats = {
+          wordsLearned: dailyStats.wordsLearned || 0,
+          studyTime: Math.floor((dailyStats.studyTimeMinutes || 0) * 60), // Convert minutes to seconds
+          streak: dailyStats.streak || 0
+        };
+        console.log('🔄 Setting realTimeStats to:', JSON.stringify(newStats));
+        setRealTimeStats(newStats);
+      } else {
+        console.log('🔄 No daily stats found, setting to zeros');
+        setRealTimeStats({ wordsLearned: 0, studyTime: 0, streak: 0 });
+      }
+    } catch (error) {
+      console.error('Error loading real-time stats:', error);
+      setRealTimeStats({ wordsLearned: 0, studyTime: 0, streak: 0 });
+    }
   };
 
   const showNotification = (
@@ -229,15 +274,17 @@ const App = () => {
       };
     }
 
-    // Use current user data if profile isn't loaded yet
-    if (currentUser && !userProfile) {
-      return {
-        streak: currentUser.streak || 0,
-        wordsLearned: currentUser.role === 'Advanced User' ? 150 : 25,
-        studyTime: currentUser.role === 'Advanced User' ? 1200 : 300,
-        level: currentUser.role === 'Advanced User' ? 'advanced' : 'beginner',
-        name: currentUser.name || currentUser.role,
+    // Use real-time stats if available, otherwise use user profile data
+    if (currentUser) {
+      const stats = {
+        streak: realTimeStats?.streak ?? streak ?? userProfile?.streakCount ?? currentUser.streak ?? 0,
+        wordsLearned: realTimeStats?.wordsLearned ?? userProfile?.totalWordsLearned ?? 0,
+        studyTime: realTimeStats?.studyTime ?? userProfile?.totalStudyTime ?? 0,
+        level: userProfile?.hindiLevel || (currentUser.role === 'Advanced User' ? 'advanced' : 'beginner'),
+        name: userProfile?.name || currentUser.name || currentUser.role,
       };
+      console.log('📊 getUserStats returning:', JSON.stringify(stats), 'realTimeStats:', JSON.stringify(realTimeStats));
+      return stats;
     }
 
     return {
@@ -291,6 +338,10 @@ const App = () => {
   };
 
   const handleCorrect = async () => {
+    // Reload stats after word is learned (stats are updated in Flashcard component)
+    console.log('🔄 Reloading stats after correct answer...');
+    await loadRealTimeStats();
+    
     if (currentWord && difficulty) {
       let nextWord: Word | null = null;
       
