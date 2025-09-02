@@ -13,6 +13,7 @@ import { useSettings, useAppContext } from '../contexts/AppContext';
 import { speakHindi } from '../utils/speechUtils';
 import { analyticsManager } from '../utils/analyticsUtils';
 import { questManager } from '../utils/questManager';
+import { notificationManager } from '../utils/notificationManager';
 
 interface FlashcardProps {
   word: Word;
@@ -91,11 +92,8 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
       questManager.trackStudyTime(1) // 1 minute of study time per word
     ]);
     
-    // Show XP gain notification if there are significant rewards
-    const totalXP = questResults.reduce((sum, result) => sum + result.xpGained, 0);
-    if (totalXP > 0) {
-      console.log(`🎉 +${totalXP} XP gained!`);
-    }
+    // Show XP gain notification for base correct answer XP
+    notificationManager.showXPGain(10, 'Correct answer!');
     
     // Trigger real-time analytics update
     analyticsManager.triggerAnalyticsUpdate();
