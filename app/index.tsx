@@ -28,6 +28,7 @@ import CredentialLogin from '../components/CredentialLogin';
 import DemoCredentials from '../components/DemoCredentials';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useOfflineMode } from '../hooks/useOfflineMode';
+import { questManager } from '../utils/questManager';
 
 type Difficulty = 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
 
@@ -134,14 +135,41 @@ const App = () => {
     queueAction('progress', { streak: newStreak, timestamp: Date.now() });
   };
 
-  const handleAuthSuccess = (user: any) => {
+  const handleAuthSuccess = async (user: any) => {
     setCurrentUser(user);
+    
+    // Create or update user profile based on account type
+    const profile: UserProfileData = {
+      name: user.name || user.role,
+      hindiLevel: user.role === 'Advanced User' ? 'advanced' : 'beginner',
+      studyGoal: user.role === 'Advanced User' ? 30 : 15,
+      preferredVoice: 'female',
+      totalWordsLearned: user.role === 'Advanced User' ? 150 : 25,
+      totalStudyTime: user.role === 'Advanced User' ? 1200 : 300,
+      achievements: user.role === 'Advanced User' ? ['First Word', 'Fast Learner', 'Streak Master'] : ['First Word'],
+      joinDate: new Date().toISOString(),
+      lastActive: new Date().toISOString(),
+      streakCount: user.role === 'Advanced User' ? 15 : 3,
+      xpPoints: user.xp || (user.role === 'Advanced User' ? 3750 : 1250),
+      level: user.level || (user.role === 'Advanced User' ? 15 : 5),
+    };
+    
+    setUserProfile(profile);
+    setStreak(profile.streakCount);
+    
+    // Update quest manager with user level and XP
+    if (user.role === 'Advanced User') {
+      // Simulate advanced user progress for quest system
+      await questManager.trackWordLearned();
+      await questManager.trackStreak(profile.streakCount);
+    }
+    
     // Sync data when user signs in
     queueAction('auth', { user, timestamp: Date.now() });
   };
 
   const getUserStats = () => {
-    if (!userProfile) {
+    if (!userProfile && !currentUser) {
       return {
         streak: 0,
         wordsLearned: 0,
@@ -151,12 +179,23 @@ const App = () => {
       };
     }
 
+    // Use current user data if profile isn't loaded yet
+    if (currentUser && !userProfile) {
+      return {
+        streak: currentUser.streak || 0,
+        wordsLearned: currentUser.role === 'Advanced User' ? 150 : 25,
+        studyTime: currentUser.role === 'Advanced User' ? 1200 : 300,
+        level: currentUser.role === 'Advanced User' ? 'advanced' : 'beginner',
+        name: currentUser.name || currentUser.role,
+      };
+    }
+
     return {
-      streak: streak || 0,
-      wordsLearned: userProfile.totalWordsLearned,
-      studyTime: userProfile.totalStudyTime,
-      level: userProfile.hindiLevel,
-      name: userProfile.name,
+      streak: streak || userProfile?.streakCount || 0,
+      wordsLearned: userProfile?.totalWordsLearned || 0,
+      studyTime: userProfile?.totalStudyTime || 0,
+      level: userProfile?.hindiLevel || 'beginner',
+      name: userProfile?.name || currentUser?.name || 'Guest User',
     };
   };
 
