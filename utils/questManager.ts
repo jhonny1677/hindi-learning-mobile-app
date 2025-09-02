@@ -1,5 +1,6 @@
 import { webStorage } from './webStorage';
 import { Quest, Badge, UserXP } from '../components/QuestsAndBadges';
+import { notificationManager } from './notificationManager';
 
 const QUESTS_STORAGE_KEY = 'hindi_learning_quests';
 const BADGES_STORAGE_KEY = 'hindi_learning_badges';
@@ -15,6 +16,15 @@ export interface DailyStats {
   totalAnswers: number;
 }
 
+export interface RewardNotification {
+  type: 'xp' | 'badge' | 'quest' | 'levelup';
+  title: string;
+  description: string;
+  xpAmount?: number;
+  iconName?: string;
+  rarity?: 'common' | 'rare' | 'epic' | 'legendary';
+}
+
 class QuestManager {
   private static instance: QuestManager;
 
@@ -25,11 +35,12 @@ class QuestManager {
     return QuestManager.instance;
   }
 
-  async trackWordLearned(): Promise<{ xpGained: number; questsCompleted: string[]; badgesUnlocked: string[] }> {
+  async trackWordLearned(): Promise<{ xpGained: number; questsCompleted: string[]; badgesUnlocked: string[]; notifications: RewardNotification[] }> {
     const results = {
       xpGained: 0,
       questsCompleted: [] as string[],
-      badgesUnlocked: [] as string[]
+      badgesUnlocked: [] as string[],
+      notifications: [] as RewardNotification[]
     };
 
     // Update daily stats
@@ -154,6 +165,9 @@ class QuestManager {
 
             // Add XP
             await this.addXP(quest.xpReward, 'Quest Complete', `Completed quest: ${quest.title}`);
+            
+            // Show notification
+            notificationManager.showQuestCompleted(quest.title, quest.description, quest.xpReward);
           }
         }
       }
@@ -170,7 +184,59 @@ class QuestManager {
   private async checkBadges(): Promise<string[]> {
     try {
       const badgesData = await webStorage.getItem(BADGES_STORAGE_KEY);
-      const badges: Badge[] = badgesData ? JSON.parse(badgesData) : [];
+      let badges: Badge[] = badgesData ? JSON.parse(badgesData) : [];
+      
+      // Initialize badges if they don't exist
+      if (badges.length === 0) {
+        badges = [
+          {
+            id: 'first_word',
+            name: 'First Steps',
+            description: 'Learned your first Hindi word',
+            icon: 'star' as any,
+            rarity: 'common',
+            requirements: 'Learn 1 word',
+            xpValue: 25,
+          },
+          {
+            id: 'fast_learner',
+            name: 'Fast Learner',
+            description: 'Learned 10 words in a day',
+            icon: 'flash' as any,
+            rarity: 'rare',
+            requirements: 'Learn 10 words',
+            xpValue: 100,
+          },
+          {
+            id: 'accuracy_master',
+            name: 'Accuracy Master',
+            description: 'Achieved 90% accuracy',
+            icon: 'trophy' as any,
+            rarity: 'epic',
+            requirements: '90% accuracy with 10+ answers',
+            xpValue: 200,
+          },
+          {
+            id: 'streak_starter',
+            name: 'Streak Starter',
+            description: 'Maintained a 3-day streak',
+            icon: 'flame' as any,
+            rarity: 'common',
+            requirements: '3-day streak',
+            xpValue: 50,
+          },
+          {
+            id: 'dedicated_learner',
+            name: 'Dedicated Learner',
+            description: 'Studied for 30 minutes',
+            icon: 'book' as any,
+            rarity: 'rare',
+            requirements: '30 minutes study time',
+            xpValue: 75,
+          }
+        ];
+        await webStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badges));
+      }
       
       const dailyStatsData = await webStorage.getItem(DAILY_STATS_KEY);
       const dailyStats: DailyStats = dailyStatsData ? JSON.parse(dailyStatsData) : null;
@@ -184,7 +250,10 @@ class QuestManager {
 
         let shouldUnlock = false;
 
-        // Check badge requirements
+        // Check badge requirements based on TOTAL progress, not just daily
+        const userXPData = await webStorage.getItem(XP_STORAGE_KEY);
+        const userLevel = userXPData ? JSON.parse(userXPData).level : 1;
+        
         switch (badge.id) {
           case 'first_word':
             shouldUnlock = dailyStats.wordsLearned >= 1;
@@ -202,6 +271,10 @@ class QuestManager {
           case 'dedicated_learner':
             shouldUnlock = dailyStats.studyTimeMinutes >= 30;
             break;
+          // Remove hindi_scholar from auto-awarding - it should be earned through actual progress
+          default:
+            shouldUnlock = false;
+            break;
         }
 
         if (shouldUnlock) {
@@ -210,6 +283,9 @@ class QuestManager {
 
           // Add XP for badge
           await this.addXP(badge.xpValue, 'Badge Earned', `Earned badge: ${badge.name}`);
+          
+          // Show notification
+          notificationManager.showBadgeUnlocked(badge.name, badge.description, badge.xpValue, badge.rarity);
         }
       }
 
@@ -249,6 +325,9 @@ class QuestManager {
           source: 'Level Up',
           description: `Reached level ${userXP.level}!`
         });
+        
+        // Show level up notification
+        notificationManager.showLevelUp(userXP.level);
       }
 
       // Add XP gain to history

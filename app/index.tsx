@@ -26,9 +26,11 @@ import SocialFeatures from '../components/SocialFeatures';
 import QuestsAndBadges from '../components/QuestsAndBadges';
 import CredentialLogin from '../components/CredentialLogin';
 import DemoCredentials from '../components/DemoCredentials';
+import RewardNotification from '../components/RewardNotification';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useOfflineMode } from '../hooks/useOfflineMode';
 import { questManager } from '../utils/questManager';
+import { notificationManager } from '../utils/notificationManager';
 
 type Difficulty = 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
 
@@ -73,11 +75,30 @@ const App = () => {
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [streak, setStreak] = useState(0);
   
+  // Notification state
+  const [notification, setNotification] = useState<{
+    visible: boolean;
+    type: 'xp' | 'badge' | 'quest' | 'levelup';
+    title: string;
+    description: string;
+    xpAmount?: number;
+    iconName?: keyof typeof Ionicons.glyphMap;
+    rarity?: 'common' | 'rare' | 'epic' | 'legendary';
+  }>({
+    visible: false,
+    type: 'xp',
+    title: '',
+    description: '',
+  });
+  
   const { error, executeWithErrorHandling, clearError } = useErrorHandler();
   const { queueAction } = useOfflineMode();
 
   useEffect(() => {
     databaseService.init();
+    
+    // Setup notification manager callback
+    notificationManager.setCallback(showNotification);
     
     // Setup offline listener
     const offlineListener = (online: boolean) => {
@@ -108,6 +129,16 @@ const App = () => {
 
   const loadUserProfile = async () => {
     await executeWithErrorHandling(async () => {
+      // Check if user is logged in first
+      const storedUser = await webStorage.getItem('hindi_learning_user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        await handleAuthSuccess(user);
+        return;
+      }
+
+      // Fall back to stored profile
       const stored = await webStorage.getItem('hindi_learning_profile');
       if (stored) {
         const profile: UserProfileData = JSON.parse(stored);
@@ -166,6 +197,25 @@ const App = () => {
     
     // Sync data when user signs in
     queueAction('auth', { user, timestamp: Date.now() });
+  };
+
+  const showNotification = (
+    type: 'xp' | 'badge' | 'quest' | 'levelup',
+    title: string,
+    description: string,
+    xpAmount?: number,
+    iconName?: keyof typeof Ionicons.glyphMap,
+    rarity?: 'common' | 'rare' | 'epic' | 'legendary'
+  ) => {
+    setNotification({
+      visible: true,
+      type,
+      title,
+      description,
+      xpAmount,
+      iconName,
+      rarity,
+    });
   };
 
   const getUserStats = () => {
@@ -719,6 +769,18 @@ const App = () => {
         {showDemoCredentials && (
           <DemoCredentials onClose={() => setShowDemoCredentials(false)} />
         )}
+
+        {/* Reward Notification */}
+        <RewardNotification
+          visible={notification.visible}
+          onClose={() => setNotification(prev => ({ ...prev, visible: false }))}
+          type={notification.type}
+          title={notification.title}
+          description={notification.description}
+          xpAmount={notification.xpAmount}
+          iconName={notification.iconName}
+          rarity={notification.rarity}
+        />
       </SafeAreaView>
     </ErrorBoundary>
   );
