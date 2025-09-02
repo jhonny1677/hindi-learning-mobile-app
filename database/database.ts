@@ -1,5 +1,49 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Web fallback for AsyncStorage
+const createWebStorage = () => ({
+  async getItem(key: string) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  async setItem(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value);
+    } catch {}
+  },
+  async removeItem(key: string) {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  },
+  async getAllKeys() {
+    try {
+      return Object.keys(localStorage);
+    } catch {
+      return [];
+    }
+  },
+  async multiRemove(keys: string[]) {
+    try {
+      keys.forEach(key => localStorage.removeItem(key));
+    } catch {}
+  }
+});
+
+// Use web storage if AsyncStorage fails
+const getStorage = () => {
+  try {
+    return AsyncStorage;
+  } catch {
+    return createWebStorage();
+  }
+};
+
+const storage = getStorage();
+
 export interface Word {
   id: number;
   hindi: string;
@@ -58,12 +102,12 @@ class DatabaseService {
 
   private async seedInitialData() {
     const currentVersion = "22.2";
-    const storedVersion = await AsyncStorage.getItem('words_version');
-    const existingWords = await AsyncStorage.getItem('words');
+    const storedVersion = await storage.getItem('words_version');
+    const existingWords = await storage.getItem('words');
     
     if (!existingWords || storedVersion !== currentVersion) {
-      await AsyncStorage.removeItem('words');
-      await AsyncStorage.setItem('words_version', currentVersion);
+      await storage.removeItem('words');
+      await storage.setItem('words_version', currentVersion);
       this.words = [
         // Alphabet and basic characters
         { id: 1, hindi: 'अ', english: 'A (short)', difficulty: 'alphabet', pronunciation: 'a' },
@@ -1869,7 +1913,7 @@ class DatabaseService {
         { id: 1792, hindi: 'किराया', english: 'Rent', difficulty: 'beginner', pronunciation: 'kiraya' }
       ];
 
-      await AsyncStorage.setItem('words', JSON.stringify(this.words));
+      await storage.setItem('words', JSON.stringify(this.words));
     } else if (storedVersion === currentVersion) {
       this.words = JSON.parse(existingWords);
     }
@@ -1895,7 +1939,7 @@ class DatabaseService {
 
   async updateUserProgress(wordId: number, correct: boolean) {
     const progressKey = `progress_${wordId}`;
-    const existingProgress = await AsyncStorage.getItem(progressKey);
+    const existingProgress = await storage.getItem(progressKey);
     
     let progress: UserProgress;
     
@@ -1922,12 +1966,12 @@ class DatabaseService {
       };
     }
     
-    await AsyncStorage.setItem(progressKey, JSON.stringify(progress));
+    await storage.setItem(progressKey, JSON.stringify(progress));
   }
 
   async getUserProgress(wordId: number): Promise<UserProgress | null> {
     const progressKey = `progress_${wordId}`;
-    const existingProgress = await AsyncStorage.getItem(progressKey);
+    const existingProgress = await storage.getItem(progressKey);
     return existingProgress ? JSON.parse(existingProgress) : null;
   }
 
@@ -1987,26 +2031,26 @@ class DatabaseService {
   }
 
   async markDifficultyCompleted(difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert') {
-    await AsyncStorage.setItem(`completed_${difficulty}`, 'true');
+    await storage.setItem(`completed_${difficulty}`, 'true');
   }
 
   async isDifficultyCompleted(difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert'): Promise<boolean> {
-    const completed = await AsyncStorage.getItem(`completed_${difficulty}`);
+    const completed = await storage.getItem(`completed_${difficulty}`);
     return completed === 'true';
   }
 
   async saveUserProgress(progress: UserProgress): Promise<void> {
     const progressKey = `progress_${progress.wordId}`;
-    await AsyncStorage.setItem(progressKey, JSON.stringify(progress));
+    await storage.setItem(progressKey, JSON.stringify(progress));
   }
 
   async getAllUserProgress(): Promise<UserProgress[]> {
-    const keys = await AsyncStorage.getAllKeys();
+    const keys = await storage.getAllKeys();
     const progressKeys = keys.filter(key => key.startsWith('progress_'));
     const progressData: UserProgress[] = [];
     
     for (const key of progressKeys) {
-      const data = await AsyncStorage.getItem(key);
+      const data = await storage.getItem(key);
       if (data) {
         progressData.push(JSON.parse(data));
       }
@@ -2017,7 +2061,7 @@ class DatabaseService {
 
   async updateProgressWithSRS(wordId: number, correct: boolean, responseTime: number = 0): Promise<void> {
     const progressKey = `progress_${wordId}`;
-    const existingProgress = await AsyncStorage.getItem(progressKey);
+    const existingProgress = await storage.getItem(progressKey);
     
     let progress: UserProgress;
     
@@ -2070,7 +2114,7 @@ class DatabaseService {
     nextReview.setDate(nextReview.getDate() + progress.interval);
     progress.nextReview = nextReview.toISOString();
     
-    await AsyncStorage.setItem(progressKey, JSON.stringify(progress));
+    await storage.setItem(progressKey, JSON.stringify(progress));
   }
 
   async getWordsDueForReview(difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'expert'): Promise<Word[]> {
@@ -2197,12 +2241,21 @@ class DatabaseService {
   }
 
   async clearAllProgress(): Promise<void> {
-    const keys = await AsyncStorage.getAllKeys();
+    const keys = await storage.getAllKeys();
     const progressKeys = keys.filter(key => key.startsWith('progress_') || key.startsWith('completed_'));
     if (progressKeys.length > 0) {
-      await AsyncStorage.multiRemove(progressKeys);
+      await storage.multiRemove(progressKeys);
     }
   }
 }
 
-export const database = new DatabaseService();
+const databaseServiceInstance = new DatabaseService();
+
+// Export both names for compatibility
+export const database = databaseServiceInstance;
+export const databaseService = databaseServiceInstance;
+
+// Initialize database automatically for web
+if (typeof window !== 'undefined') {
+  databaseService.init().catch(console.error);
+}
