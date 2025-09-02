@@ -10,8 +10,10 @@
 ## 🚀 **Live Demo for Recruiters**
 
 ### **📱 Try it Now!**
-- **🌐 Web Demo**: https://jhonny1677.github.io/hindi-learning-mobile-app *(deploying soon)*
-- **📱 Android APK**: [Download from Releases](https://github.com/jhonny1677/hindi-learning-mobile-app/releases)
+- **🌐 Web Demo**: https://jhonny1677.github.io/hindi-learning-mobile-app
+  - *Enable GitHub Pages: Repository Settings → Pages → Deploy from branch: main → /docs*
+- **📱 Android APK**: [Build Instructions](./APK_BUILD_INSTRUCTIONS.md) | [GitHub Actions](../../actions)
+  - *Auto-build available via GitHub Actions workflow*
 - **🎯 Demo Credentials**: Click the "Demo" button in the app for instant access
 - **📋 Full Demo Guide**: [View DEMO_FOR_RECRUITERS.md](./DEMO_FOR_RECRUITERS.md)
 
