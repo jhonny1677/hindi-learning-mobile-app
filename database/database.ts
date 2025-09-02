@@ -1979,6 +1979,7 @@ class DatabaseService {
     totalWords: number;
     learnedWords: number;
     accuracy: number;
+    isComplete: boolean;
   }> {
     await this.init();
     const wordsInDifficulty = this.words.filter(w => w.difficulty === difficulty);
@@ -1995,10 +1996,13 @@ class DatabaseService {
       }
     }
     
+    const isComplete = learnedWords >= wordsInDifficulty.length;
+    
     return {
       totalWords: wordsInDifficulty.length,
       learnedWords,
-      accuracy: totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
+      accuracy: totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0,
+      isComplete
     };
   }
 

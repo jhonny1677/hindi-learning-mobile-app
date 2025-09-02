@@ -12,6 +12,7 @@ import { Word, databaseService } from '../database/database';
 import { useSettings, useAppContext } from '../contexts/AppContext';
 import { speakHindi } from '../utils/speechUtils';
 import { analyticsManager } from '../utils/analyticsUtils';
+import { questManager } from '../utils/questManager';
 
 interface FlashcardProps {
   word: Word;
@@ -83,6 +84,19 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
     const responseTime = Date.now() - startTime;
     await databaseService.updateProgressWithSRS(word.id, true, responseTime);
     
+    // Track quest progress and XP gains
+    const questResults = await Promise.all([
+      questManager.trackWordLearned(),
+      questManager.trackCorrectAnswer(),
+      questManager.trackStudyTime(1) // 1 minute of study time per word
+    ]);
+    
+    // Show XP gain notification if there are significant rewards
+    const totalXP = questResults.reduce((sum, result) => sum + result.xpGained, 0);
+    if (totalXP > 0) {
+      console.log(`🎉 +${totalXP} XP gained!`);
+    }
+    
     // Trigger real-time analytics update
     analyticsManager.triggerAnalyticsUpdate();
     
@@ -103,6 +117,9 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
   const handleIncorrect = async () => {
     const responseTime = Date.now() - startTime;
     await databaseService.updateProgressWithSRS(word.id, false, responseTime);
+    
+    // Still track study time even for incorrect answers
+    await questManager.trackStudyTime(0.5); // Half a minute for incorrect
     
     // Trigger real-time analytics update
     analyticsManager.triggerAnalyticsUpdate();
