@@ -7,6 +7,20 @@
 
 > 🎯 **A comprehensive mobile application for learning Hindi language with advanced gamification, AI features, and social learning components built with React Native and Expo**
 
+## 🚀 **Live Demo for Recruiters**
+
+### **📱 Try it Now!**
+- **🌐 Web Demo**: https://jhonny1677.github.io/hindi-learning-mobile-app *(deploying soon)*
+- **📱 Android APK**: [Download from Releases](https://github.com/jhonny1677/hindi-learning-mobile-app/releases)
+- **🎯 Demo Credentials**: Click the "Demo" button in the app for instant access
+- **📋 Full Demo Guide**: [View DEMO_FOR_RECRUITERS.md](./DEMO_FOR_RECRUITERS.md)
+
+### **Quick Access Credentials**
+```
+Student Account: demo.student@hindiapp.com / Student123
+Advanced User: demo.advanced@hindiapp.com / Advanced123
+```
+
 ## 🌟 Project Overview
 
 An innovative mobile language learning platform that combines modern React Native development with advanced gamification mechanics, real-time analytics, and offline-first architecture. The app features a complete learning ecosystem with XP progression, quest systems, social features, and comprehensive user management.
