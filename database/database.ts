@@ -2232,10 +2232,10 @@ class DatabaseService {
     
     return {
       totalWordsLearned: allProgress.filter(p => p.attempts > 0).length,
-      averageResponseTime: totalAttempts > 0 ? totalResponseTime / totalAttempts : 0,
-      accuracyRate: totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0,
-      learningVelocity: weeklyProgress / 7,
-      retentionRate: allProgress.filter(p => p.lastResponseCorrect).length / Math.max(allProgress.length, 1) * 100,
+      averageResponseTime: Math.round(totalAttempts > 0 ? totalResponseTime / totalAttempts : 0),
+      accuracyRate: Math.round(totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0),
+      learningVelocity: Math.round((weeklyProgress / 7) * 10) / 10, // Round to 1 decimal place
+      retentionRate: Math.round(allProgress.filter(p => p.lastResponseCorrect).length / Math.max(allProgress.length, 1) * 100),
       weeklyProgress,
       monthlyProgress,
       strongestCategory,

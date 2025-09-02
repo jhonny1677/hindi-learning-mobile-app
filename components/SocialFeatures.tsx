@@ -136,6 +136,7 @@ export default function SocialFeatures({ visible, onClose, userStats }: SocialFe
 
   const loadLeaderboard = async () => {
     try {
+      console.log('🏆 Loading leaderboard with userStats:', JSON.stringify(userStats));
       const stored = await webStorage.getItem(LEADERBOARD_KEY);
       let data: LeaderboardEntry[] = stored ? JSON.parse(stored) : [];
       
@@ -149,6 +150,7 @@ export default function SocialFeatures({ visible, onClose, userStats }: SocialFe
         level: userStats.level,
         isCurrentUser: true,
       };
+      console.log('🏆 Created current user entry:', JSON.stringify(currentUserEntry));
 
       // Remove existing current user entry and add updated one
       data = data.filter(entry => !entry.isCurrentUser);

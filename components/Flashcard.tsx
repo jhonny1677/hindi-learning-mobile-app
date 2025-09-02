@@ -85,12 +85,13 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
     const responseTime = Date.now() - startTime;
     await databaseService.updateProgressWithSRS(word.id, true, responseTime);
     
-    // Track quest progress and XP gains
-    const questResults = await Promise.all([
-      questManager.trackWordLearned(),
-      questManager.trackCorrectAnswer(),
-      questManager.trackStudyTime(1) // 1 minute of study time per word
-    ]);
+    // Track quest progress and XP gains (sequentially to avoid race conditions)
+    console.log('📚 Tracking word learned...');
+    const wordResult = await questManager.trackWordLearned();
+    const correctResult = await questManager.trackCorrectAnswer();
+    const studyResult = await questManager.trackStudyTime(1); // 1 minute of study time per word
+    const questResults = [wordResult, correctResult, studyResult];
+    console.log('📚 Quest results:', questResults);
     
     // Show XP gain notification for base correct answer XP
     notificationManager.showXPGain(10, 'Correct answer!');
@@ -200,9 +201,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#111827',
   },
   cardContainer: {
-    width: width * 0.85,
-    height: 300,
+    width: Math.min(width * 0.9, 400), // Max width of 400px, 90% of screen
+    height: 350, // Increased height
     marginBottom: 30,
+    alignSelf: 'center', // Center the card
   },
   card: {
     position: 'absolute',
@@ -284,7 +286,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: width * 0.85,
+    width: Math.min(width * 0.9, 400), // Match card container width
     gap: 15,
   },
   button: {
