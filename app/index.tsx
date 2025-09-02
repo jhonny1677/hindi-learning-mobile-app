@@ -25,6 +25,7 @@ import OfflineIndicator from '../components/OfflineIndicator';
 import SocialFeatures from '../components/SocialFeatures';
 import QuestsAndBadges from '../components/QuestsAndBadges';
 import GoogleAuth, { GoogleUser } from '../components/GoogleAuth';
+import DemoCredentials from '../components/DemoCredentials';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useOfflineMode } from '../hooks/useOfflineMode';
 
@@ -66,6 +67,7 @@ const App = () => {
   const [showSocial, setShowSocial] = useState(false);
   const [showQuests, setShowQuests] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showDemoCredentials, setShowDemoCredentials] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [googleUser, setGoogleUser] = useState<GoogleUser | null>(null);
   const [streak, setStreak] = useState(0);
@@ -464,6 +466,15 @@ const App = () => {
               </TouchableOpacity>
               
               <TouchableOpacity 
+                style={[styles.topButton, { backgroundColor: '#4F46E5' }]}
+                onPress={() => setShowDemoCredentials(true)}
+              >
+                <Text style={styles.topButtonText}>
+                  🎯 Demo
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
                 style={styles.topButton}
                 onPress={() => setShowAnalytics(true)}
               >
@@ -665,6 +676,10 @@ const App = () => {
           onClose={() => setShowAuth(false)}
           onAuthSuccess={handleGoogleAuthSuccess}
         />
+
+        {showDemoCredentials && (
+          <DemoCredentials onClose={() => setShowDemoCredentials(false)} />
+        )}
       </SafeAreaView>
     </ErrorBoundary>
   );

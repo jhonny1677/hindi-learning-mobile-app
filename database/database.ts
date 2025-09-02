@@ -1796,7 +1796,7 @@ class DatabaseService {
 
         // Missing words restored to ensure no data loss
         { id: 1723, hindi: 'इलाका', english: 'Area, Region', difficulty: 'beginner', pronunciation: 'ilaka' },
-        { id: 1724, hindi: 'ता'ज्जुब', english: 'Wonder, Surprise', difficulty: 'intermediate', pronunciation: 'tajjub' },
+        { id: 1724, hindi: 'ताज्जुब', english: 'Wonder, Surprise', difficulty: 'intermediate', pronunciation: 'tajjub' },
 
         // Additional vocabulary requested
         { id: 1725, hindi: 'दूरी', english: 'Distance', difficulty: 'beginner', pronunciation: 'doori' },
