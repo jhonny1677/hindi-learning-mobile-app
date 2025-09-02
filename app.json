@@ -1,13 +1,14 @@
 {
     "expo": {
-      "name": "HindiLearningApp",
-      "slug": "HindiLearningApp",
+      "name": "Hindi Learning App",
+      "slug": "hindi-learning-app",
       "version": "1.0.0",
       "orientation": "portrait",
       "icon": "./assets/images/icon.png",
       "scheme": "hindilearningapp",
       "userInterfaceStyle": "automatic",
       "newArchEnabled": true,
+      "description": "AI-powered mobile language learning platform with gamification and offline support",
       "ios": {
         "bundleIdentifier": "com.ankit.hindilearningapp",
         "supportsTablet": true
