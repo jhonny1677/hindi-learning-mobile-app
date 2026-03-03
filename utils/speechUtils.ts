@@ -1,65 +1,36 @@
 import * as Speech from 'expo-speech';
-import { Platform, Alert, Vibration } from 'react-native';
+import { Platform, Vibration, Alert } from 'react-native';
 
 export const speakHindi = async (text: string): Promise<void> => {
   // For React Native (mobile)
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
     try {
-      // Check if speech is available
-      const speechAvailable = await Speech.isSpeakingAsync();
-      console.log('Speech available:', !speechAvailable);
-      
-      // Stop any current speech
-      if (speechAvailable) {
+      const isSpeaking = await Speech.isSpeakingAsync();
+      if (isSpeaking) {
         await Speech.stop();
       }
-      
-      // Vibrate to indicate button press
-      Vibration.vibrate(50);
-      
-      // Try different language options for better compatibility
-      const languageOptions = ['hi-IN', 'hi', 'en-IN', 'en-US'];
-      
-      for (const language of languageOptions) {
-        try {
-          await Speech.speak(text, {
-            language: language,
+
+      Vibration.vibrate(30);
+
+      // Try hi-IN first; fall back to hi on error
+      console.log('[speakHindi] calling Speech.speak:', text);
+      Speech.speak(text, {
+        language: 'hi-IN',
+        pitch: 1.0,
+        rate: 0.75,
+        volume: 1.0,
+        onError: (err) => {
+          console.warn('[speakHindi] hi-IN failed, falling back to hi:', err);
+          Speech.speak(text, {
+            language: 'hi',
             pitch: 1.0,
             rate: 0.75,
             volume: 1.0,
-            onStart: () => {
-              console.log(`Speaking with ${language}:`, text);
-              // Show visual feedback
-              Alert.alert('🔊 Audio', `Playing: ${text}`, [{ text: 'OK' }], { cancelable: true });
-            },
-            onDone: () => {
-              console.log('Speech finished successfully');
-            },
-            onStopped: () => {
-              console.log('Speech stopped');
-            },
-            onError: (error) => {
-              console.warn(`Speech error with ${language}:`, error);
-            }
           });
-          // If we reach here, speech started successfully
-          return;
-        } catch (langError) {
-          console.warn(`Failed with language ${language}:`, langError);
-          continue;
-        }
-      }
-      
-      // If all languages failed, show fallback
-      Alert.alert('🔊 Pronunciation', `"${text}"`, [
-        { text: 'OK' }
-      ]);
-      
+        },
+      });
     } catch (error) {
       console.warn('Speech not available:', error);
-      Alert.alert('🔊 Pronunciation', `"${text}"`, [
-        { text: 'OK' }
-      ]);
     }
   } 
   // For Web

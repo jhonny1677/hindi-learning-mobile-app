@@ -29,7 +29,6 @@ const Quiz: React.FC<QuizProps> = ({ difficulty, onComplete, onBack }) => {
       await databaseService.init();
       
       const words = await databaseService.getWordsByDifficulty(difficulty);
-      console.log(`Found ${words.length} words for difficulty: ${difficulty}`);
       
       if (words.length === 0) {
         console.error(`No words found for difficulty: ${difficulty}`);
@@ -76,24 +75,28 @@ const Quiz: React.FC<QuizProps> = ({ difficulty, onComplete, onBack }) => {
 
   const handleOptionSelect = async (option: string) => {
     if (selectedOption || showResult) return;
-    
+
     setSelectedOption(option);
     const correct = option === quizWords[currentQuizIndex].english;
     setIsCorrect(correct);
     setShowResult(true);
-    
     updateQuizScore(correct);
-    
-    // Auto advance after 1.5 seconds
+
+    // Compute the updated score now — quizScore from closure is pre-update,
+    // so we increment manually and pass it forward to avoid the stale closure.
+    const updatedScore = {
+      correct: quizScore.correct + (correct ? 1 : 0),
+      total: quizScore.total + 1,
+    };
+
     setTimeout(() => {
-      handleNext();
+      handleNext(updatedScore);
     }, 1500);
   };
 
-  const handleNext = async () => {
+  const handleNext = async (score?: { correct: number; total: number }) => {
     if (!quizWords || currentQuizIndex >= quizWords.length - 1) {
-      // Quiz completed - use final score
-      onComplete(quizScore);
+      onComplete(score ?? quizScore);
       return;
     }
     
@@ -216,6 +219,8 @@ const getDifficultyColor = (difficulty: string) => {
     case 'intermediate': return '#F59E0B';
     case 'advanced': return '#3B82F6';
     case 'expert': return '#EF4444';
+    case 'alphabet': return '#7C3AED';
+    case 'grammar': return '#DB2777';
     default: return '#6B7280';
   }
 };

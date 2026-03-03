@@ -117,7 +117,6 @@ const VirtualizedWordList: React.FC<VirtualizedWordListProps> = memo(({
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         getItemType={getItemType}
-        estimatedItemSize={estimatedItemSize}
         // Performance optimizations
         removeClippedSubviews={true}
         // Styling

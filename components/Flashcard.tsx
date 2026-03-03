@@ -22,7 +22,7 @@ interface FlashcardProps {
   onCompletionCheck?: (difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert') => void;
 }
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const DIFFICULTY_COLORS: Record<string, { front: string; frontDark: string }> = {
   beginner:     { front: '#16A34A', frontDark: '#15803D' },
@@ -92,16 +92,14 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
   };
 
   const handleCorrect = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    speakHindi('शाबाश');
     const responseTime = Date.now() - startTime;
     await databaseService.updateProgressWithSRS(word.id, true, responseTime);
     
-    // Track quest progress and XP gains (sequentially to avoid race conditions)
-    console.log('📚 Tracking word learned...');
-    const wordResult = await questManager.trackWordLearned();
-    const correctResult = await questManager.trackCorrectAnswer();
-    const studyResult = await questManager.trackStudyTime(1); // 1 minute of study time per word
-    const questResults = [wordResult, correctResult, studyResult];
-    console.log('📚 Quest results:', questResults);
+    await questManager.trackWordLearned();
+    await questManager.trackCorrectAnswer();
+    await questManager.trackStudyTime(1);
     
     // Show XP gain notification for base correct answer XP
     notificationManager.showXPGain(10, 'Correct answer!');
@@ -124,6 +122,7 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
   };
 
   const handleIncorrect = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const responseTime = Date.now() - startTime;
     await databaseService.updateProgressWithSRS(word.id, false, responseTime);
     
@@ -158,12 +157,7 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
             {!isFlipped && (
               <TouchableOpacity
                 style={styles.speakerButton}
-                onPress={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  speakHindi(word.hindi);
-                  return false;
-                }}
+                onPress={() => speakHindi(word.hindi)}
                 activeOpacity={0.5}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 accessibilityLabel={`Pronounce ${word.hindi}`}
@@ -226,10 +220,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#111827',
   },
   cardContainer: {
-    width: Math.min(width * 0.9, 400), // Max width of 400px, 90% of screen
-    height: 350, // Increased height
+    width: Math.min(width * 0.9, 400),
+    height: Math.max(420, height * 0.55),
     marginBottom: 30,
-    alignSelf: 'center', // Center the card
+    alignSelf: 'center',
   },
   card: {
     position: 'absolute',
@@ -292,6 +286,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 12,
+    paddingRight: 16,
     paddingVertical: 4,
     borderRadius: 12,
     marginBottom: 20,

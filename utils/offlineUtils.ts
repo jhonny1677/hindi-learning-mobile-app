@@ -1,5 +1,6 @@
 import { webStorage } from './webStorage';
 import React from 'react';
+import NetInfo from '@react-native-community/netinfo';
 
 export interface OfflineState {
   isOnline: boolean;
@@ -17,19 +18,18 @@ class OfflineManager {
     this.loadPendingActions();
   }
 
-  private async initOfflineDetection() {
-    if (typeof window !== 'undefined') {
-      this.isOnline = navigator.onLine;
-      
-      window.addEventListener('online', () => {
-        this.setOnlineStatus(true);
-        this.syncPendingActions();
-      });
-      
-      window.addEventListener('offline', () => {
-        this.setOnlineStatus(false);
-      });
-    }
+  private initOfflineDetection() {
+    NetInfo.fetch().then(state => {
+      this.isOnline = state.isConnected ?? true;
+    });
+
+    NetInfo.addEventListener(state => {
+      const online = state.isConnected ?? true;
+      if (online !== this.isOnline) {
+        this.setOnlineStatus(online);
+        if (online) this.syncPendingActions();
+      }
+    });
   }
 
   private setOnlineStatus(isOnline: boolean) {

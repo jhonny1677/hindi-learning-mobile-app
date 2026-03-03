@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { databaseService } from '../database/database';
 import { useAppContext } from '../contexts/AppContext';
 
 interface CategoryStatsProps {
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
+  color: string;
   onPress?: (e?: any) => void;
 }
 
-const CategoryStats: React.FC<CategoryStatsProps> = ({ difficulty, onPress }) => {
+const CategoryStats: React.FC<CategoryStatsProps> = ({ difficulty, color }) => {
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
     percentage: 0,
-    isComplete: false
+    isComplete: false,
   });
-
   const { state } = useAppContext();
   const { darkMode } = state;
 
@@ -23,24 +23,18 @@ const CategoryStats: React.FC<CategoryStatsProps> = ({ difficulty, onPress }) =>
     const fetchStats = async () => {
       try {
         const progress = await databaseService.getDifficultyProgress(difficulty);
-        const percentage = progress.totalWords > 0 
-          ? Math.round((progress.learnedWords / progress.totalWords) * 100)
-          : 0;
-        
+        const pct =
+          progress.totalWords > 0
+            ? Math.round((progress.learnedWords / progress.totalWords) * 100)
+            : 0;
         setStats({
           total: progress.totalWords,
           completed: progress.learnedWords,
-          percentage: percentage,
-          isComplete: progress.learnedWords >= progress.totalWords
+          percentage: pct,
+          isComplete: progress.learnedWords >= progress.totalWords,
         });
-      } catch (error) {
-        console.error('Failed to fetch stats:', error);
-        setStats({
-          total: 0,
-          completed: 0,
-          percentage: 0,
-          isComplete: false
-        });
+      } catch {
+        setStats({ total: 0, completed: 0, percentage: 0, isComplete: false });
       }
     };
     fetchStats();
@@ -48,51 +42,41 @@ const CategoryStats: React.FC<CategoryStatsProps> = ({ difficulty, onPress }) =>
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={styles.progressTouchable}
-        onPress={(e) => {
-          e.stopPropagation();
-          onPress?.(e);
-        }}
-      >
-        <Text style={[styles.progressText, darkMode && styles.darkProgressText]}>
-          {stats.completed}/{stats.total} ({stats.percentage}%)
-        </Text>
-        {stats.isComplete ? (
-          <Text style={styles.completedBadge}>✅ Done</Text>
-        ) : (
-          <Text style={styles.progressBadge}>📝 {stats.total - stats.completed} left</Text>
-        )}
-      </TouchableOpacity>
+      <View style={[styles.track, { backgroundColor: darkMode ? '#374151' : '#E5E7EB' }]}>
+        <View
+          style={[
+            styles.fill,
+            // React Native Web accepts % widths; native ignores unknown values gracefully
+            { width: `${stats.percentage}%` as any, backgroundColor: color },
+          ]}
+        />
+      </View>
+      <Text style={[styles.label, { color: darkMode ? '#9CA3AF' : '#6B7280' }]}>
+        {stats.isComplete
+          ? '✅ All words mastered!'
+          : `${stats.completed} of ${stats.total} words`}
+      </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginBottom: 10,
   },
-  progressTouchable: {
-    flexDirection: 'column',
-    gap: 4,
+  track: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 4,
   },
-  progressText: {
-    fontSize: 13,
-    color: '#6B7280',
+  fill: {
+    height: '100%' as any,
+    borderRadius: 3,
+  },
+  label: {
+    fontSize: 12,
     fontWeight: '500',
-  },
-  darkProgressText: {
-    color: '#D1D5DB',
-  },
-  completedBadge: {
-    fontSize: 11,
-    color: '#10B981',
-    fontWeight: 'bold',
-  },
-  progressBadge: {
-    fontSize: 11,
-    color: '#F59E0B',
-    fontWeight: 'bold',
   },
 });
 

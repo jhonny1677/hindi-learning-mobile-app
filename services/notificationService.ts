@@ -1,29 +1,34 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
 const PERMISSION_ASKED_KEY = 'notifications_permission_asked';
 const REMINDER_SCHEDULED_KEY = 'daily_reminder_scheduled';
 
-// How notifications look when app is in foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+const isExpoGo = Constants.appOwnership === 'expo';
+
+// setNotificationHandler is not supported in Expo Go SDK 53+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 class NotificationService {
   private isInitialized = false;
 
   async initialize(): Promise<boolean> {
     if (this.isInitialized) return true;
-    if (Platform.OS === 'web') {
+    if (Platform.OS === 'web' || isExpoGo) {
       this.isInitialized = true;
-      return true;
+      return false;
     }
     try {
       const { status } = await Notifications.getPermissionsAsync();
@@ -37,7 +42,7 @@ class NotificationService {
 
   // Call this on first app launch (after onboarding)
   async requestPermissionIfNeeded(): Promise<boolean> {
-    if (Platform.OS === 'web') return false;
+    if (Platform.OS === 'web' || isExpoGo) return false;
     try {
       const alreadyAsked = await AsyncStorage.getItem(PERMISSION_ASKED_KEY);
       if (alreadyAsked) {

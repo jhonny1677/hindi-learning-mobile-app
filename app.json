@@ -1,56 +1,58 @@
 {
-    "expo": {
-      "name": "Seekho Hindi",
-      "slug": "seekho-hindi",
-      "version": "1.0.0",
-      "orientation": "portrait",
-      "icon": "./assets/images/icon.png",
-      "scheme": "seekhohindi",
-      "userInterfaceStyle": "automatic",
-      "newArchEnabled": true,
-      "description": "Learn Hindi with flashcards, quizzes, streaks and gamification. Offline-first Hindi learning app.",
-      "ios": {
-        "bundleIdentifier": "com.ankit.hindilearningapp",
-        "supportsTablet": true
+  "expo": {
+    "name": "Seekho Hindi",
+    "slug": "seekho-hindi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "seekhohindi",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "description": "Learn Hindi with flashcards, quizzes, streaks and gamification. Offline-first Hindi learning app.",
+    "ios": {
+      "bundleIdentifier": "com.ankit.hindilearningapp",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.ankit.hindilearningapp",
+      "targetSdkVersion": 34,
+      "minSdkVersion": 24,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#4F46E5"
       },
-      "android": {
-        "package": "com.ankit.hindilearningapp",
-        "targetSdkVersion": 34,
-        "minSdkVersion": 24,
-        "adaptiveIcon": {
-          "foregroundImage": "./assets/images/adaptive-icon.png",
-          "backgroundColor": "#4F46E5"
-        },
-        "edgeToEdgeEnabled": true
-      },
-      "web": {
-        "bundler": "metro",
-        "output": "single",
-        "favicon": "./assets/images/favicon.png"
-      },
-      "plugins": [
-        "expo-router",
-        [
-          "expo-splash-screen",
-          {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 200,
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-          }
-        ],
-        [
-          "expo-notifications",
-          {
-            "icon": "./assets/images/icon.png",
-            "color": "#4F46E5",
-            "sounds": []
-          }
-        ]
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
       ],
-      "experiments": {
-        "typedRoutes": true
-      }
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#4F46E5",
+          "sounds": []
+        }
+      ],
+      "expo-font",
+      "expo-sqlite",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
-  
+}
