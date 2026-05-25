@@ -68,109 +68,39 @@ const XP_STORAGE_KEY = 'hindi_learning_xp';
 
 // Default quests that regenerate
 const questTemplates: Omit<Quest, 'id' | 'progress' | 'isCompleted'>[] = [
-  {
-    title: 'Daily Dedication',
-    description: 'Study for at least 5 minutes today',
-    type: 'daily',
-    category: 'study',
-    target: 5,
-    xpReward: 50,
-    icon: 'book',
-  },
-  {
-    title: 'Streak Keeper',
-    description: 'Maintain your learning streak',
-    type: 'daily',
-    category: 'streak',
-    target: 1,
-    xpReward: 30,
-    icon: 'flame',
-  },
-  {
-    title: 'Word Explorer',
-    description: 'Learn 3 new words today',
-    type: 'daily',
-    category: 'progress',
-    target: 3,
-    xpReward: 75,
-    icon: 'library',
-  },
-  {
-    title: 'Weekly Warrior',
-    description: 'Study for 7 days this week',
-    type: 'weekly',
-    category: 'streak',
-    target: 7,
-    xpReward: 200,
-    icon: 'trophy',
-  },
-  {
-    title: 'Knowledge Seeker',
-    description: 'Learn 20 words this week',
-    type: 'weekly',
-    category: 'progress',
-    target: 20,
-    xpReward: 300,
-    icon: 'school',
-  },
-  {
-    title: 'Social Butterfly',
-    description: 'Share your progress',
-    type: 'achievement',
-    category: 'social',
-    target: 1,
-    xpReward: 100,
-    icon: 'share',
-  },
+  { title: 'Daily Dedication',   description: 'Study for at least 5 minutes today',   type: 'daily',       category: 'study',    target: 5,  xpReward: 50,  icon: 'book' },
+  { title: 'Streak Keeper',      description: 'Mark today as complete',                type: 'daily',       category: 'streak',   target: 1,  xpReward: 30,  icon: 'flame' },
+  { title: 'Word Explorer',      description: 'Learn 3 new words today',               type: 'daily',       category: 'progress', target: 3,  xpReward: 75,  icon: 'library' },
+  { title: 'Quick Learner',      description: 'Answer 10 questions correctly today',   type: 'daily',       category: 'study',    target: 10, xpReward: 100, icon: 'flash' },
+  { title: 'Alphabet Practice',  description: 'Study 5 alphabet characters',           type: 'daily',       category: 'progress', target: 5,  xpReward: 60,  icon: 'text' },
+  { title: 'Weekly Warrior',     description: 'Study for 7 consecutive days',          type: 'weekly',      category: 'streak',   target: 7,  xpReward: 200, icon: 'trophy' },
+  { title: 'Knowledge Seeker',   description: 'Learn 20 words this week',              type: 'weekly',      category: 'progress', target: 20, xpReward: 300, icon: 'school' },
+  { title: 'Grammar Student',    description: 'Complete 10 grammar exercises',         type: 'weekly',      category: 'study',    target: 10, xpReward: 150, icon: 'pencil' },
+  { title: 'Quiz Champion',      description: 'Complete 3 quizzes this week',          type: 'weekly',      category: 'study',    target: 3,  xpReward: 175, icon: 'help-circle' },
+  { title: 'Social Butterfly',   description: 'Share your progress',                   type: 'achievement', category: 'social',   target: 1,  xpReward: 100, icon: 'share' },
+  { title: '50 Word Milestone',  description: 'Learn a total of 50 Hindi words',       type: 'milestone',   category: 'progress', target: 50, xpReward: 500, icon: 'medal' },
 ];
 
 // Available badges
 const availableBadges: Badge[] = [
-  {
-    id: 'first_word',
-    name: 'First Steps',
-    description: 'Learned your first Hindi word',
-    icon: 'star',
-    rarity: 'common',
-    requirements: 'Learn 1 word',
-    xpValue: 25,
-  },
-  {
-    id: 'word_collector_50',
-    name: 'Word Collector',
-    description: 'Collected 50 Hindi words',
-    icon: 'library',
-    rarity: 'rare',
-    requirements: 'Learn 50 words',
-    xpValue: 150,
-  },
-  {
-    id: 'streak_master_30',
-    name: 'Streak Master',
-    description: 'Maintained a 30-day streak',
-    icon: 'flame',
-    rarity: 'epic',
-    requirements: '30-day streak',
-    xpValue: 500,
-  },
-  {
-    id: 'hindi_scholar',
-    name: 'Hindi Scholar',
-    description: 'Reached advanced level',
-    icon: 'school',
-    rarity: 'legendary',
-    requirements: 'Advanced level',
-    xpValue: 1000,
-  },
-  {
-    id: 'social_sharer',
-    name: 'Social Sharer',
-    description: 'Shared progress with friends',
-    icon: 'people',
-    rarity: 'common',
-    requirements: 'Share progress',
-    xpValue: 50,
-  },
+  { id: 'first_word',       name: 'First Steps',      description: 'Learned your first Hindi word',          icon: 'star',            rarity: 'common',    requirements: 'Learn 1 word',              xpValue: 25 },
+  { id: 'word_warrior',     name: 'Word Warrior',     description: 'Learned 25 Hindi words',                 icon: 'book',            rarity: 'common',    requirements: 'Learn 25 words',            xpValue: 75 },
+  { id: 'fast_learner',     name: 'Fast Learner',     description: 'Learned 10 words in one session',        icon: 'flash',           rarity: 'rare',      requirements: 'Learn 10 words in a day',   xpValue: 100 },
+  { id: 'century_club',     name: 'Century Club',     description: 'Reached 100 Hindi words learned',        icon: 'library',         rarity: 'rare',      requirements: 'Learn 100 words',           xpValue: 200 },
+  { id: 'double_century',   name: 'Word Master',      description: 'Conquered 200 Hindi words',              icon: 'medal',           rarity: 'epic',      requirements: 'Learn 200 words',           xpValue: 400 },
+  { id: 'hindi_scholar',    name: 'Hindi Scholar',    description: 'Learned 500 Hindi words',                icon: 'school',          rarity: 'legendary', requirements: 'Learn 500 words',           xpValue: 1000 },
+  { id: 'accuracy_master',  name: 'Sharp Mind',       description: 'Achieved 90% accuracy',                  icon: 'trophy',          rarity: 'epic',      requirements: '90% accuracy (10+ answers)',xpValue: 200 },
+  { id: 'perfect_score',    name: 'Perfectionist',    description: 'Got every answer right in a session',    icon: 'checkmark-circle',rarity: 'rare',      requirements: '100% accuracy in a session',xpValue: 150 },
+  { id: 'quiz_whiz',        name: 'Quiz Whiz',        description: 'Answered 25 quiz questions correctly',   icon: 'help-circle',     rarity: 'common',    requirements: '25 correct quiz answers',   xpValue: 100 },
+  { id: 'streak_starter',   name: 'Streak Starter',   description: 'Maintained a 3-day streak',              icon: 'flame',           rarity: 'common',    requirements: '3-day streak',              xpValue: 50 },
+  { id: 'consistent',       name: 'Consistent',       description: 'Kept a 5-day learning streak',           icon: 'checkmark-done',  rarity: 'common',    requirements: '5-day streak',              xpValue: 100 },
+  { id: 'week_warrior',     name: 'Week Warrior',     description: 'Maintained a 7-day streak',              icon: 'calendar',        rarity: 'rare',      requirements: '7-day streak',              xpValue: 150 },
+  { id: 'fortnight_flame',  name: 'Fortnight Flame',  description: 'Maintained a 14-day streak',             icon: 'bonfire',         rarity: 'epic',      requirements: '14-day streak',             xpValue: 300 },
+  { id: 'streak_master_30', name: 'Streak Legend',    description: 'Maintained a 30-day streak',             icon: 'ribbon',          rarity: 'legendary', requirements: '30-day streak',             xpValue: 750 },
+  { id: 'dedicated_learner',name: 'Dedicated',        description: 'Studied for 30 minutes total',           icon: 'time',            rarity: 'common',    requirements: '30 min study time',         xpValue: 75 },
+  { id: 'night_scholar',    name: 'Night Scholar',    description: 'Accumulated 60 minutes of study',        icon: 'moon',            rarity: 'rare',      requirements: '60 min total study',        xpValue: 150 },
+  { id: 'alphabet_ace',     name: 'Alphabet Ace',     description: 'Completed 20 alphabet characters',       icon: 'text',            rarity: 'common',    requirements: 'Learn 20 alphabet letters', xpValue: 75 },
+  { id: 'grammar_guru',     name: 'Grammar Guru',     description: 'Mastered 15 grammar concepts',           icon: 'pencil',          rarity: 'rare',      requirements: 'Learn 15 grammar words',    xpValue: 125 },
 ];
 
 export default function QuestsAndBadges({ visible, onClose, userStats }: QuestsAndBadgesProps) {
@@ -422,58 +352,66 @@ export default function QuestsAndBadges({ visible, onClose, userStats }: QuestsA
     </ScrollView>
   );
 
+  const getRarityStars = (rarity: Badge['rarity']) => {
+    const map = { common: '★', rare: '★★', epic: '★★★', legendary: '★★★★' };
+    return map[rarity] || '★';
+  };
+
+  const unlockedCount = badges.filter(b => !!b.unlockedAt).length;
+
   const renderBadges = () => (
     <ScrollView style={styles.tabContent}>
-      <Text style={[styles.tabTitle, darkMode && styles.darkText]}>Badges Collection</Text>
-      
+      <View style={styles.badgeHeader}>
+        <Text style={[styles.tabTitle, darkMode && styles.darkText]}>Badges</Text>
+        <View style={[styles.badgeCountPill, { backgroundColor: '#4F46E5' }]}>
+          <Text style={styles.badgeCountText}>{unlockedCount}/{badges.length}</Text>
+        </View>
+      </View>
+
       <View style={styles.badgeGrid}>
         {badges.map((badge) => {
           const isUnlocked = !!badge.unlockedAt;
+          const color = getRarityColor(badge.rarity);
           return (
             <View
               key={badge.id}
               style={[
                 styles.badgeItem,
                 darkMode && styles.darkBadgeItem,
-                isUnlocked && styles.unlockedBadge,
+                isUnlocked && { borderColor: color, borderWidth: 1.5 },
+                !isUnlocked && { opacity: 0.55 },
               ]}
             >
               <View style={[
                 styles.badgeIcon,
-                darkMode && styles.darkBadgeIcon,
-                { borderColor: getRarityColor(badge.rarity) },
-                isUnlocked && { backgroundColor: getRarityColor(badge.rarity) + '20' },
+                { backgroundColor: isUnlocked ? color + '18' : (darkMode ? '#374151' : '#F3F4F6'), borderColor: isUnlocked ? color : (darkMode ? '#4B5563' : '#E5E7EB') },
               ]}>
+                {!isUnlocked && (
+                  <Ionicons name="lock-closed" size={14} color={darkMode ? '#6B7280' : '#9CA3AF'} style={styles.lockOverlay} />
+                )}
                 <Ionicons
                   name={badge.icon}
-                  size={32}
-                  color={isUnlocked ? getRarityColor(badge.rarity) : (darkMode ? '#6B7280' : '#9CA3AF')}
+                  size={30}
+                  color={isUnlocked ? color : (darkMode ? '#4B5563' : '#D1D5DB')}
                 />
               </View>
-              
-              <Text style={[
-                styles.badgeName,
-                darkMode && styles.darkText,
-                { color: isUnlocked ? getRarityColor(badge.rarity) : undefined },
-              ]}>
+
+              <Text style={[styles.badgeName, { color: isUnlocked ? color : (darkMode ? '#9CA3AF' : '#6B7280') }]} numberOfLines={1}>
                 {badge.name}
               </Text>
-              
-              <Text style={[styles.badgeDescription, darkMode && styles.darkDescription]}>
-                {badge.description}
+
+              <Text style={[styles.badgeDescription, darkMode && styles.darkDescription]} numberOfLines={2}>
+                {isUnlocked ? badge.description : badge.requirements}
               </Text>
-              
-              <View style={[
-                styles.rarityBadge,
-                { backgroundColor: getRarityColor(badge.rarity) },
-              ]}>
-                <Text style={styles.rarityText}>
-                  {badge.rarity.toUpperCase()}
+
+              <View style={[styles.rarityBadge, { backgroundColor: isUnlocked ? color : (darkMode ? '#374151' : '#E5E7EB') }]}>
+                <Text style={[styles.rarityText, { color: isUnlocked ? '#fff' : (darkMode ? '#9CA3AF' : '#6B7280') }]}>
+                  {getRarityStars(badge.rarity)} {badge.rarity}
                 </Text>
               </View>
-              
+
               {isUnlocked && (
-                <Text style={styles.xpValue}>+{badge.xpValue} XP</Text>
+                <Text style={[styles.xpValue, { color }]}>+{badge.xpValue} XP earned</Text>
               )}
             </View>
           );
@@ -772,6 +710,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  badgeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  badgeCountPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  badgeCountText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  lockOverlay: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+  },
   badgeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -780,18 +739,21 @@ const styles = StyleSheet.create({
   badgeItem: {
     width: '48%',
     backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
+    padding: 12,
+    borderRadius: 14,
+    marginBottom: 14,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   darkBadgeItem: {
     backgroundColor: '#1F2937',
+    borderColor: '#374151',
   },
   unlockedBadge: {
     borderWidth: 2,
@@ -804,7 +766,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: '#E5E7EB',
   },

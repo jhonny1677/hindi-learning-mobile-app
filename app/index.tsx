@@ -297,15 +297,15 @@ const App = () => {
   };
 
   const difficulties = [
-    { name: 'Beginner', key: 'beginner' as Difficulty, color: '#10B981', icon: '🌱' },
-    { name: 'Intermediate', key: 'intermediate' as Difficulty, color: '#F59E0B', icon: '🚀' },
-    { name: 'Advanced', key: 'advanced' as Difficulty, color: '#3B82F6', icon: '🎯' },
-    { name: 'Expert', key: 'expert' as Difficulty, color: '#EF4444', icon: '👑' },
+    { name: 'Beginner', key: 'beginner' as Difficulty, color: '#10B981', icon: '🌱', desc: 'Essential everyday words' },
+    { name: 'Intermediate', key: 'intermediate' as Difficulty, color: '#F59E0B', icon: '🚀', desc: 'Expand your vocabulary' },
+    { name: 'Advanced', key: 'advanced' as Difficulty, color: '#3B82F6', icon: '🎯', desc: 'Complex expressions' },
+    { name: 'Expert', key: 'expert' as Difficulty, color: '#EF4444', icon: '👑', desc: 'Master-level Hindi' },
   ];
 
   const specialDecks = [
-    { name: 'Alphabet', key: 'alphabet' as Difficulty, color: '#8B5CF6', icon: '🔤' },
-    { name: 'Grammar', key: 'grammar' as Difficulty, color: '#EC4899', icon: '📝' },
+    { name: 'Alphabet', key: 'alphabet' as Difficulty, color: '#8B5CF6', icon: '🔤', desc: 'Learn Devanagari script' },
+    { name: 'Grammar', key: 'grammar' as Difficulty, color: '#EC4899', icon: '📝', desc: 'Rules & sentence structure' },
   ];
 
   const isAdaptiveDifficulty = (d: Difficulty): d is 'beginner' | 'intermediate' | 'advanced' | 'expert' =>
@@ -654,46 +654,40 @@ const App = () => {
           <Text style={[styles.sectionTitle, darkMode && styles.darkText]}>Choose Your Level</Text>
           <View style={styles.difficultiesGrid}>
             {difficulties.map((diff) => (
-              <View key={diff.key} style={styles.cardGroup}>
-                {/* Main Learning Card */}
-                <View
-                  style={[
-                    styles.difficultyCard, 
-                    { borderLeftColor: diff.color },
-                    darkMode && styles.darkCard
-                  ]}
-                >
-                  <Text style={styles.cardIcon}>{diff.icon}</Text>
-                  <View style={styles.cardContent}>
-                    <Text style={[styles.cardTitle, darkMode && styles.darkText]}>{diff.name}</Text>
-                    <CategoryStats 
-                      difficulty={diff.key} 
-                      onPress={(e) => {
-                        e?.stopPropagation?.();
-                        setShowWordProgress(diff.key);
-                      }}
-                    />
+              <TouchableOpacity
+                key={diff.key}
+                style={[styles.levelCard, darkMode && styles.darkLevelCard]}
+                onPress={() => setShowWordProgress(diff.key)}
+                activeOpacity={0.92}
+              >
+                <View style={[styles.levelCardAccent, { backgroundColor: diff.color }]} />
+                <View style={styles.levelCardInner}>
+                  <View style={styles.levelCardTop}>
+                    <Text style={styles.levelCardIcon}>{diff.icon}</Text>
+                    <View style={styles.levelCardMeta}>
+                      <Text style={[styles.levelCardTitle, darkMode && styles.darkText]}>{diff.name}</Text>
+                      <Text style={[styles.levelCardDesc, darkMode && styles.darkSubtitle]}>{diff.desc}</Text>
+                    </View>
                   </View>
-                  <View style={styles.buttonGroup}>
+                  <CategoryStats difficulty={diff.key} onPress={(e) => { e?.stopPropagation?.(); setShowWordProgress(diff.key); }} />
+                  <View style={styles.levelCardButtons}>
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.playButton, { backgroundColor: diff.color }]}
+                      style={[styles.levelPlayBtn, { backgroundColor: diff.color }]}
                       onPress={(e) => { e.stopPropagation(); startLearning(diff.key); }}
                       accessibilityLabel={`Start ${diff.name} flashcards`}
-                      accessibilityRole="button"
                     >
-                      <Text style={styles.actionButtonText}>Play</Text>
+                      <Text style={styles.levelPlayBtnText}>▶ Play</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.quizButton, { backgroundColor: diff.color, opacity: 0.8 }]}
+                      style={[styles.levelQuizBtn, { borderColor: diff.color }]}
                       onPress={(e) => { e.stopPropagation(); startQuiz(diff.key); }}
                       accessibilityLabel={`Start ${diff.name} quiz`}
-                      accessibilityRole="button"
                     >
-                      <Text style={styles.actionButtonText}>Quiz</Text>
+                      <Text style={[styles.levelQuizBtnText, { color: diff.color }]}>Quiz</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -703,46 +697,40 @@ const App = () => {
           <Text style={[styles.sectionTitle, darkMode && styles.darkText]}>Foundation Learning</Text>
           <View style={styles.difficultiesGrid}>
             {specialDecks.map((deck) => (
-              <View key={deck.key} style={styles.cardGroup}>
-                {/* Special Learning Card */}
-                <View
-                  style={[
-                    styles.difficultyCard, 
-                    { borderLeftColor: deck.color },
-                    darkMode && styles.darkCard
-                  ]}
-                >
-                  <Text style={styles.cardIcon}>{deck.icon}</Text>
-                  <View style={styles.cardContent}>
-                    <Text style={[styles.cardTitle, darkMode && styles.darkText]}>{deck.name}</Text>
-                    <CategoryStats 
-                      difficulty={deck.key} 
-                      onPress={(e) => {
-                        e?.stopPropagation?.();
-                        setShowWordProgress(deck.key);
-                      }}
-                    />
+              <TouchableOpacity
+                key={deck.key}
+                style={[styles.levelCard, darkMode && styles.darkLevelCard]}
+                onPress={() => setShowWordProgress(deck.key)}
+                activeOpacity={0.92}
+              >
+                <View style={[styles.levelCardAccent, { backgroundColor: deck.color }]} />
+                <View style={styles.levelCardInner}>
+                  <View style={styles.levelCardTop}>
+                    <Text style={styles.levelCardIcon}>{deck.icon}</Text>
+                    <View style={styles.levelCardMeta}>
+                      <Text style={[styles.levelCardTitle, darkMode && styles.darkText]}>{deck.name}</Text>
+                      <Text style={[styles.levelCardDesc, darkMode && styles.darkSubtitle]}>{deck.desc}</Text>
+                    </View>
                   </View>
-                  <View style={styles.buttonGroup}>
+                  <CategoryStats difficulty={deck.key} onPress={(e) => { e?.stopPropagation?.(); setShowWordProgress(deck.key); }} />
+                  <View style={styles.levelCardButtons}>
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.playButton, { backgroundColor: deck.color }]}
+                      style={[styles.levelPlayBtn, { backgroundColor: deck.color }]}
                       onPress={(e) => { e.stopPropagation(); startLearning(deck.key); }}
                       accessibilityLabel={`Start ${deck.name} flashcards`}
-                      accessibilityRole="button"
                     >
-                      <Text style={styles.actionButtonText}>Play</Text>
+                      <Text style={styles.levelPlayBtnText}>▶ Play</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.quizButton, { backgroundColor: deck.color, opacity: 0.8 }]}
+                      style={[styles.levelQuizBtn, { borderColor: deck.color }]}
                       onPress={(e) => { e.stopPropagation(); startQuiz(deck.key); }}
                       accessibilityLabel={`Start ${deck.name} quiz`}
-                      accessibilityRole="button"
                     >
-                      <Text style={styles.actionButtonText}>Quiz</Text>
+                      <Text style={[styles.levelQuizBtnText, { color: deck.color }]}>Quiz</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -1100,6 +1088,81 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  levelCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    marginBottom: 12,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  darkLevelCard: {
+    backgroundColor: '#1F2937',
+  },
+  levelCardAccent: {
+    width: 5,
+    borderTopLeftRadius: 14,
+    borderBottomLeftRadius: 14,
+  },
+  levelCardInner: {
+    flex: 1,
+    padding: 14,
+  },
+  levelCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  levelCardIcon: {
+    fontSize: 28,
+    marginRight: 10,
+  },
+  levelCardMeta: {
+    flex: 1,
+  },
+  levelCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 2,
+  },
+  levelCardDesc: {
+    fontSize: 12,
+    color: '#6B7280',
+    lineHeight: 16,
+  },
+  levelCardButtons: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+  },
+  levelPlayBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  levelPlayBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  levelQuizBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    backgroundColor: 'transparent',
+  },
+  levelQuizBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 

@@ -159,7 +159,8 @@ const CredentialLogin: React.FC<CredentialLoginProps> = ({ visible, onClose, onA
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? 0 : 0}
       >
         <View style={[styles.container, { backgroundColor: bg('#F9FAFB', '#111827') }]}>
           {/* Header */}

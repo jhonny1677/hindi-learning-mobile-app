@@ -195,51 +195,24 @@ class QuestManager {
       // Initialize badges if they don't exist
       if (badges.length === 0) {
         badges = [
-          {
-            id: 'first_word',
-            name: 'First Steps',
-            description: 'Learned your first Hindi word',
-            icon: 'star' as any,
-            rarity: 'common',
-            requirements: 'Learn 1 word',
-            xpValue: 25,
-          },
-          {
-            id: 'fast_learner',
-            name: 'Fast Learner',
-            description: 'Learned 10 words in a day',
-            icon: 'flash' as any,
-            rarity: 'rare',
-            requirements: 'Learn 10 words',
-            xpValue: 100,
-          },
-          {
-            id: 'accuracy_master',
-            name: 'Accuracy Master',
-            description: 'Achieved 90% accuracy',
-            icon: 'trophy' as any,
-            rarity: 'epic',
-            requirements: '90% accuracy with 10+ answers',
-            xpValue: 200,
-          },
-          {
-            id: 'streak_starter',
-            name: 'Streak Starter',
-            description: 'Maintained a 3-day streak',
-            icon: 'flame' as any,
-            rarity: 'common',
-            requirements: '3-day streak',
-            xpValue: 50,
-          },
-          {
-            id: 'dedicated_learner',
-            name: 'Dedicated Learner',
-            description: 'Studied for 30 minutes',
-            icon: 'book' as any,
-            rarity: 'rare',
-            requirements: '30 minutes study time',
-            xpValue: 75,
-          }
+          { id: 'first_word',         name: 'First Steps',        description: 'Learned your first Hindi word',       icon: 'star' as any,         rarity: 'common',    requirements: 'Learn 1 word',                  xpValue: 25 },
+          { id: 'word_warrior',       name: 'Word Warrior',       description: 'Learned 25 Hindi words',             icon: 'book' as any,         rarity: 'common',    requirements: 'Learn 25 words',                xpValue: 75 },
+          { id: 'fast_learner',       name: 'Fast Learner',       description: 'Learned 10 words in one session',    icon: 'flash' as any,        rarity: 'rare',      requirements: 'Learn 10 words in a day',       xpValue: 100 },
+          { id: 'century_club',       name: 'Century Club',       description: 'Reached 100 Hindi words learned',    icon: 'library' as any,      rarity: 'rare',      requirements: 'Learn 100 words',               xpValue: 200 },
+          { id: 'double_century',     name: 'Word Master',        description: 'Conquered 200 Hindi words',          icon: 'medal' as any,        rarity: 'epic',      requirements: 'Learn 200 words',               xpValue: 400 },
+          { id: 'accuracy_master',    name: 'Sharp Mind',         description: 'Achieved 90% accuracy',              icon: 'trophy' as any,       rarity: 'epic',      requirements: '90% accuracy with 10+ answers', xpValue: 200 },
+          { id: 'perfect_score',      name: 'Perfectionist',      description: 'Got every answer right in a session',icon: 'checkmark-circle' as any, rarity: 'rare',  requirements: '100% accuracy in a session',    xpValue: 150 },
+          { id: 'streak_starter',     name: 'Streak Starter',     description: 'Maintained a 3-day streak',          icon: 'flame' as any,        rarity: 'common',    requirements: '3-day streak',                  xpValue: 50 },
+          { id: 'week_warrior',       name: 'Week Warrior',       description: 'Maintained a 7-day streak',          icon: 'calendar' as any,     rarity: 'rare',      requirements: '7-day streak',                  xpValue: 150 },
+          { id: 'fortnight_flame',    name: 'Fortnight Flame',    description: 'Maintained a 14-day streak',         icon: 'bonfire' as any,      rarity: 'epic',      requirements: '14-day streak',                 xpValue: 300 },
+          { id: 'dedicated_learner',  name: 'Dedicated Learner',  description: 'Studied for 30 minutes total',       icon: 'time' as any,         rarity: 'common',    requirements: '30 minutes study time',         xpValue: 75 },
+          { id: 'night_scholar',      name: 'Night Scholar',      description: 'Accumulated 60 minutes of study',    icon: 'moon' as any,         rarity: 'rare',      requirements: '60 minutes total study',        xpValue: 150 },
+          { id: 'alphabet_ace',       name: 'Alphabet Ace',       description: 'Completed 20 alphabet letters',      icon: 'text' as any,         rarity: 'common',    requirements: 'Learn 20 alphabet letters',     xpValue: 75 },
+          { id: 'grammar_guru',       name: 'Grammar Guru',       description: 'Mastered 15 grammar concepts',       icon: 'pencil' as any,       rarity: 'rare',      requirements: 'Learn 15 grammar words',        xpValue: 125 },
+          { id: 'quiz_whiz',          name: 'Quiz Whiz',          description: 'Answered 25 quiz questions correctly',icon: 'help-circle' as any, rarity: 'common',    requirements: '25 correct quiz answers',       xpValue: 100 },
+          { id: 'consistent',         name: 'Consistent',         description: 'Studied 5 days in a row',            icon: 'checkmark-done' as any, rarity: 'common',  requirements: '5-day streak',                  xpValue: 100 },
+          { id: 'streak_master_30',   name: 'Streak Legend',      description: 'Maintained a 30-day streak',         icon: 'ribbon' as any,       rarity: 'legendary', requirements: '30-day streak',                 xpValue: 750 },
+          { id: 'hindi_scholar',      name: 'Hindi Scholar',      description: 'Learned 500 Hindi words',            icon: 'school' as any,       rarity: 'legendary', requirements: 'Learn 500 words',               xpValue: 1000 },
         ];
         await webStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badges));
       }
@@ -266,27 +239,25 @@ class QuestManager {
         const userLevel = userXPData ? JSON.parse(userXPData).level : 1;
         
         switch (badge.id) {
-          case 'first_word':
-            // Award this badge on the very first correct answer, not just daily stats
-            shouldUnlock = dailyStats.wordsLearned >= 1 || dailyStats.correctAnswers >= 1;
-            break;
-          case 'fast_learner':
-            shouldUnlock = dailyStats.wordsLearned >= 10;
-            break;
-          case 'accuracy_master':
-            shouldUnlock = dailyStats.totalAnswers >= 10 && 
-                          (dailyStats.correctAnswers / dailyStats.totalAnswers) >= 0.9;
-            break;
-          case 'streak_starter':
-            shouldUnlock = dailyStats.streak >= 3;
-            break;
-          case 'dedicated_learner':
-            shouldUnlock = dailyStats.studyTimeMinutes >= 30;
-            break;
-          // Remove hindi_scholar from auto-awarding - it should be earned through actual progress
-          default:
-            shouldUnlock = false;
-            break;
+          case 'first_word':        shouldUnlock = dailyStats.correctAnswers >= 1 || dailyStats.wordsLearned >= 1; break;
+          case 'word_warrior':      shouldUnlock = dailyStats.wordsLearned >= 25; break;
+          case 'fast_learner':      shouldUnlock = dailyStats.wordsLearned >= 10; break;
+          case 'century_club':      shouldUnlock = dailyStats.wordsLearned >= 100; break;
+          case 'double_century':    shouldUnlock = dailyStats.wordsLearned >= 200; break;
+          case 'accuracy_master':   shouldUnlock = dailyStats.totalAnswers >= 10 && (dailyStats.correctAnswers / dailyStats.totalAnswers) >= 0.9; break;
+          case 'perfect_score':     shouldUnlock = dailyStats.totalAnswers >= 5 && dailyStats.correctAnswers === dailyStats.totalAnswers; break;
+          case 'streak_starter':    shouldUnlock = dailyStats.streak >= 3; break;
+          case 'consistent':        shouldUnlock = dailyStats.streak >= 5; break;
+          case 'week_warrior':      shouldUnlock = dailyStats.streak >= 7; break;
+          case 'fortnight_flame':   shouldUnlock = dailyStats.streak >= 14; break;
+          case 'streak_master_30':  shouldUnlock = dailyStats.streak >= 30; break;
+          case 'dedicated_learner': shouldUnlock = dailyStats.studyTimeMinutes >= 30; break;
+          case 'night_scholar':     shouldUnlock = dailyStats.studyTimeMinutes >= 60; break;
+          case 'alphabet_ace':      shouldUnlock = dailyStats.wordsLearned >= 20; break;
+          case 'grammar_guru':      shouldUnlock = dailyStats.wordsLearned >= 15; break;
+          case 'quiz_whiz':         shouldUnlock = dailyStats.correctAnswers >= 25; break;
+          case 'hindi_scholar':     shouldUnlock = dailyStats.wordsLearned >= 500; break;
+          default:                  shouldUnlock = false; break;
         }
 
         if (shouldUnlock) {
