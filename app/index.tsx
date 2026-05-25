@@ -1,6 +1,6 @@
 
 import React, { memo, useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Switch } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View, ScrollView, Switch, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { webStorage } from '../utils/webStorage';
 
@@ -25,12 +25,13 @@ import OfflineIndicator from '../components/OfflineIndicator';
 import SocialFeatures from '../components/SocialFeatures';
 import QuestsAndBadges from '../components/QuestsAndBadges';
 import CredentialLogin from '../components/CredentialLogin';
-import DemoCredentials from '../components/DemoCredentials';
+import PrivacyPolicy from '../components/PrivacyPolicy';
 import RewardNotification from '../components/RewardNotification';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 import { useOfflineMode } from '../hooks/useOfflineMode';
 import { questManager } from '../utils/questManager';
 import { notificationManager } from '../utils/notificationManager';
+import { notificationService } from '../services/notificationService';
 
 type Difficulty = 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
 
@@ -70,7 +71,8 @@ const App = () => {
   const [showSocial, setShowSocial] = useState(false);
   const [showQuests, setShowQuests] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [showDemoCredentials, setShowDemoCredentials] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [privacyMode, setPrivacyMode] = useState<'privacy' | 'terms'>('privacy');
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [streak, setStreak] = useState(0);
@@ -166,6 +168,8 @@ const App = () => {
     try {
       await webStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
       setShowOnboarding(false);
+      // Request notification permission and schedule daily reminder
+      await notificationService.scheduleDailyReminder();
     } catch (error) {
       console.error('Error saving onboarding status:', error);
     }
@@ -183,38 +187,35 @@ const App = () => {
 
   const handleAuthSuccess = async (user: any) => {
     setCurrentUser(user);
-    
-    // Create or update user profile based on account type
+
     const profile: UserProfileData = {
-      name: user.name || user.role,
-      hindiLevel: user.role === 'Advanced User' ? 'advanced' : 'beginner',
-      studyGoal: user.role === 'Advanced User' ? 30 : 15,
-      preferredVoice: 'female',
-      totalWordsLearned: user.role === 'Advanced User' ? 150 : 25,
-      totalStudyTime: user.role === 'Advanced User' ? 1200 : 300,
-      achievements: user.role === 'Advanced User' ? ['First Word', 'Fast Learner', 'Streak Master'] : ['First Word'],
-      joinDate: new Date().toISOString(),
-      lastActive: new Date().toISOString(),
-      streakCount: user.role === 'Advanced User' ? 15 : 3,
-      xpPoints: user.xp || (user.role === 'Advanced User' ? 3750 : 1250),
-      level: user.level || (user.role === 'Advanced User' ? 15 : 5),
+      id: user.id || 'user_' + Date.now(),
+      name: user.name || 'Learner',
+      email: user.email,
+      learningGoal: 'regular',
+      nativeLanguage: 'English',
+      hindiLevel: 'beginner',
+      dailyGoalMinutes: 15,
+      createdAt: new Date().toISOString(),
+      lastSyncAt: new Date().toISOString(),
+      totalWordsLearned: 0,
+      totalStudyTime: 0,
+      achievements: [],
+      preferences: {
+        notifications: true,
+        soundEffects: true,
+        darkMode: false,
+        autoplay: true,
+      },
     };
-    
+
     setUserProfile(profile);
-    setStreak(profile.streakCount);
-    
+
     // Load real-time stats after authentication
     await loadRealTimeStats();
-    
-    // Update quest manager with user level and XP
-    if (user.role === 'Advanced User') {
-      // Simulate advanced user progress for quest system
-      await questManager.trackWordLearned();
-      await questManager.trackStreak(profile.streakCount);
-    }
-    
+
     // Sync data when user signs in
-    queueAction('auth', { user, timestamp: Date.now() });
+    queueAction('profile', { user, timestamp: Date.now() });
   };
 
   const loadRealTimeStats = async () => {
@@ -249,7 +250,7 @@ const App = () => {
     title: string,
     description: string,
     xpAmount?: number,
-    iconName?: keyof typeof Ionicons.glyphMap,
+    iconName?: string,
     rarity?: 'common' | 'rare' | 'epic' | 'legendary'
   ) => {
     setNotification({
@@ -258,7 +259,7 @@ const App = () => {
       title,
       description,
       xpAmount,
-      iconName,
+      iconName: iconName as keyof typeof Ionicons.glyphMap | undefined,
       rarity,
     });
   };
@@ -277,22 +278,21 @@ const App = () => {
     // Use real-time stats if available, otherwise use user profile data
     if (currentUser) {
       const stats = {
-        streak: realTimeStats?.streak ?? streak ?? userProfile?.streakCount ?? currentUser.streak ?? 0,
+        streak: realTimeStats?.streak ?? streak ?? 0,
         wordsLearned: realTimeStats?.wordsLearned ?? userProfile?.totalWordsLearned ?? 0,
         studyTime: realTimeStats?.studyTime ?? userProfile?.totalStudyTime ?? 0,
-        level: userProfile?.hindiLevel || (currentUser.role === 'Advanced User' ? 'advanced' : 'beginner'),
-        name: userProfile?.name || currentUser.name || currentUser.role,
+        level: userProfile?.hindiLevel || 'beginner',
+        name: userProfile?.name || currentUser.name || 'Learner',
       };
-      console.log('📊 getUserStats returning:', JSON.stringify(stats), 'realTimeStats:', JSON.stringify(realTimeStats));
       return stats;
     }
 
     return {
-      streak: streak || userProfile?.streakCount || 0,
+      streak: streak || 0,
       wordsLearned: userProfile?.totalWordsLearned || 0,
       studyTime: userProfile?.totalStudyTime || 0,
       level: userProfile?.hindiLevel || 'beginner',
-      name: userProfile?.name || currentUser?.name || 'Guest User',
+      name: userProfile?.name || 'Guest User',
     };
   };
 
@@ -308,15 +308,18 @@ const App = () => {
     { name: 'Grammar', key: 'grammar' as Difficulty, color: '#EC4899', icon: '📝' },
   ];
 
+  const isAdaptiveDifficulty = (d: Difficulty): d is 'beginner' | 'intermediate' | 'advanced' | 'expert' =>
+    ['beginner', 'intermediate', 'advanced', 'expert'].includes(d);
+
   const startLearning = async (selectedDifficulty: Difficulty) => {
     setDifficulty(selectedDifficulty);
-    
+
     let word: Word | null = null;
-    
-    if (useAdaptiveLearning) {
+
+    if (useAdaptiveLearning && isAdaptiveDifficulty(selectedDifficulty)) {
       // Try adaptive learning first
       word = await databaseService.getAdaptiveDifficultyWord(selectedDifficulty);
-      
+
       // If no adaptive word found, try words due for review
       if (!word) {
         const dueWords = await databaseService.getWordsDueForReview(selectedDifficulty);
@@ -325,12 +328,12 @@ const App = () => {
         }
       }
     }
-    
+
     // Fallback to random word if adaptive learning is off or no adaptive word found
     if (!word) {
       word = await databaseService.getRandomWord(selectedDifficulty);
     }
-    
+
     if (word) {
       setCurrentWord(word);
       setIsLearning(true);
@@ -338,18 +341,14 @@ const App = () => {
   };
 
   const handleCorrect = async () => {
-    // Reload stats after word is learned (stats are updated in Flashcard component)
-    console.log('🔄 Reloading stats after correct answer...');
     await loadRealTimeStats();
-    
+
     if (currentWord && difficulty) {
       let nextWord: Word | null = null;
-      
-      if (useAdaptiveLearning) {
-        // Try adaptive learning for next word
+
+      if (useAdaptiveLearning && isAdaptiveDifficulty(difficulty)) {
         nextWord = await databaseService.getAdaptiveDifficultyWord(difficulty);
-        
-        // If no adaptive word found, try words due for review
+
         if (!nextWord) {
           const dueWords = await databaseService.getWordsDueForReview(difficulty);
           if (dueWords.length > 0) {
@@ -357,16 +356,14 @@ const App = () => {
           }
         }
       }
-      
-      // Fallback to random word
+
       if (!nextWord) {
         nextWord = await databaseService.getRandomWord(difficulty);
       }
-      
+
       if (nextWord) {
         setCurrentWord(nextWord);
       } else {
-        // No more words, show completion
         setCompletionModal({ visible: true, difficulty });
         setIsLearning(false);
       }
@@ -376,12 +373,10 @@ const App = () => {
   const handleIncorrect = async () => {
     if (currentWord && difficulty) {
       let nextWord: Word | null = null;
-      
-      if (useAdaptiveLearning) {
-        // Try adaptive learning for next word
+
+      if (useAdaptiveLearning && isAdaptiveDifficulty(difficulty)) {
         nextWord = await databaseService.getAdaptiveDifficultyWord(difficulty);
-        
-        // If no adaptive word found, try words due for review
+
         if (!nextWord) {
           const dueWords = await databaseService.getWordsDueForReview(difficulty);
           if (dueWords.length > 0) {
@@ -389,12 +384,11 @@ const App = () => {
           }
         }
       }
-      
-      // Fallback to random word
+
       if (!nextWord) {
         nextWord = await databaseService.getRandomWord(difficulty);
       }
-      
+
       if (nextWord) {
         setCurrentWord(nextWord);
       }
@@ -429,53 +423,44 @@ const App = () => {
   };
 
 
-  const handleReset = async () => {
-    console.log('Reset button clicked!');
-    
-    // Use native confirm if available, otherwise provide fallback
-    const shouldReset = window.confirm 
-      ? window.confirm('Are you sure you want to reset all progress? This cannot be undone.')
-      : true; // For debugging, auto-confirm if window.confirm is not available
-    
-    if (shouldReset) {
-      try {
-        console.log('Starting reset process...');
-        
-        // Clear all user progress from database
-        await databaseService.clearAllProgress();
-        console.log('Database progress cleared');
-        
-        // Reset all app state
-        setCurrentWord(null);
-        setDifficulty(null);
-        setIsLearning(false);
-        setIsQuizMode(false);
-        setCompletionModal({ visible: false, difficulty: null });
-        setQuizResults(null);
-        setShowAnalytics(false);
-        setShowWordProgress(null);
-        console.log('App state reset');
-        
-        // Force a page reload to completely reset the state
-        if (typeof window !== 'undefined' && window.location) {
-          window.location.reload();
-        }
-        
-        // Show success message (if page doesn't reload)
-        if (window.alert) {
-          window.alert('All progress has been reset!');
-        } else {
-          console.log('All progress has been reset!');
-        }
-      } catch (error) {
-        console.error('Failed to reset progress:', error);
-        if (window.alert) {
-          window.alert('Failed to reset progress. Please try again.');
-        }
-      }
-    } else {
-      console.log('Reset cancelled by user');
-    }
+  const handleReset = () => {
+    Alert.alert(
+      'Reset All Progress',
+      'Are you sure? This will erase all your learned words, streaks, XP, badges and quests. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await databaseService.clearAllProgress();
+              await webStorage.removeItem('hindi_learning_daily_stats');
+              await webStorage.removeItem('hindi_learning_streak');
+              await webStorage.removeItem('hindi_learning_xp');
+              await webStorage.removeItem('hindi_learning_badges');
+              await webStorage.removeItem('hindi_learning_quests');
+              await webStorage.removeItem('hindi_learning_achievements');
+              await webStorage.removeItem('hindi_learning_leaderboard');
+              setCurrentWord(null);
+              setDifficulty(null);
+              setIsLearning(false);
+              setIsQuizMode(false);
+              setCompletionModal({ visible: false, difficulty: null });
+              setQuizResults(null);
+              setShowAnalytics(false);
+              setShowWordProgress(null);
+              setRealTimeStats({ wordsLearned: 0, studyTime: 0, streak: 0 });
+              setStreak(0);
+              Alert.alert('Done', 'All progress has been reset.');
+            } catch (error) {
+              console.error('Failed to reset progress:', error);
+              Alert.alert('Error', 'Failed to reset progress. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (showAnalytics) {
@@ -568,7 +553,7 @@ const App = () => {
           <View style={[styles.headerSection, darkMode && styles.darkHeaderSection]}>
             <View style={styles.headerTop}>
               <View>
-                <Text style={[styles.title, darkMode && styles.darkText]}>Hindi Learning App</Text>
+                <Text style={[styles.title, darkMode && styles.darkText]}>Seekho Hindi</Text>
                 <Text style={[styles.subtitle, darkMode && styles.darkSubtitle]}>
                   Welcome back, {userProfile?.name || 'Learner'}!
                 </Text>
@@ -605,16 +590,7 @@ const App = () => {
                 </Text>
               </TouchableOpacity>
               
-              <TouchableOpacity 
-                style={[styles.topButton, { backgroundColor: '#4F46E5' }]}
-                onPress={() => setShowDemoCredentials(true)}
-              >
-                <Text style={styles.topButtonText}>
-                  🎯 Demo
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.topButton}
                 onPress={() => setShowAnalytics(true)}
               >
@@ -701,19 +677,17 @@ const App = () => {
                   <View style={styles.buttonGroup}>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.playButton, { backgroundColor: diff.color }]}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        startLearning(diff.key);
-                      }}
+                      onPress={(e) => { e.stopPropagation(); startLearning(diff.key); }}
+                      accessibilityLabel={`Start ${diff.name} flashcards`}
+                      accessibilityRole="button"
                     >
                       <Text style={styles.actionButtonText}>Play</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.quizButton, { backgroundColor: diff.color, opacity: 0.8 }]}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        startQuiz(diff.key);
-                      }}
+                      onPress={(e) => { e.stopPropagation(); startQuiz(diff.key); }}
+                      accessibilityLabel={`Start ${diff.name} quiz`}
+                      accessibilityRole="button"
                     >
                       <Text style={styles.actionButtonText}>Quiz</Text>
                     </TouchableOpacity>
@@ -752,19 +726,17 @@ const App = () => {
                   <View style={styles.buttonGroup}>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.playButton, { backgroundColor: deck.color }]}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        startLearning(deck.key);
-                      }}
+                      onPress={(e) => { e.stopPropagation(); startLearning(deck.key); }}
+                      accessibilityLabel={`Start ${deck.name} flashcards`}
+                      accessibilityRole="button"
                     >
                       <Text style={styles.actionButtonText}>Play</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.quizButton, { backgroundColor: deck.color, opacity: 0.8 }]}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        startQuiz(deck.key);
-                      }}
+                      onPress={(e) => { e.stopPropagation(); startQuiz(deck.key); }}
+                      accessibilityLabel={`Start ${deck.name} quiz`}
+                      accessibilityRole="button"
                     >
                       <Text style={styles.actionButtonText}>Quiz</Text>
                     </TouchableOpacity>
@@ -777,11 +749,22 @@ const App = () => {
 
         {/* Reset Button */}
         <View style={styles.resetSection}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.resetButton, darkMode && styles.darkResetButton]}
             onPress={handleReset}
           >
             <Text style={[styles.resetButtonText, darkMode && styles.darkText]}>🔄 Reset All Progress</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Legal Links */}
+        <View style={styles.legalSection}>
+          <TouchableOpacity onPress={() => { setPrivacyMode('privacy'); setShowPrivacy(true); }}>
+            <Text style={[styles.legalLink, darkMode && styles.darkLegalLink]}>Privacy Policy</Text>
+          </TouchableOpacity>
+          <Text style={[styles.legalDot, darkMode && styles.darkLegalLink]}> · </Text>
+          <TouchableOpacity onPress={() => { setPrivacyMode('terms'); setShowPrivacy(true); }}>
+            <Text style={[styles.legalLink, darkMode && styles.darkLegalLink]}>Terms of Service</Text>
           </TouchableOpacity>
         </View>
 
@@ -817,9 +800,11 @@ const App = () => {
           onAuthSuccess={handleAuthSuccess}
         />
 
-        {showDemoCredentials && (
-          <DemoCredentials onClose={() => setShowDemoCredentials(false)} />
-        )}
+        <PrivacyPolicy
+          visible={showPrivacy}
+          onClose={() => setShowPrivacy(false)}
+          mode={privacyMode}
+        />
 
         {/* Reward Notification */}
         <RewardNotification
@@ -1023,7 +1008,26 @@ const styles = StyleSheet.create({
   resetSection: {
     paddingHorizontal: 16,
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 16,
+  },
+  legalSection: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 32,
+    paddingTop: 8,
+  },
+  legalLink: {
+    fontSize: 12,
+    color: '#6B7280',
+    textDecorationLine: 'underline',
+  },
+  legalDot: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  darkLegalLink: {
+    color: '#9CA3AF',
   },
   resetButton: {
     backgroundColor: '#FEE2E2',

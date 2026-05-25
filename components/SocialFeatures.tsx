@@ -156,44 +156,7 @@ export default function SocialFeatures({ visible, onClose, userStats }: SocialFe
       data = data.filter(entry => !entry.isCurrentUser);
       data.push(currentUserEntry);
 
-      // Add some mock entries for demonstration
-      if (data.length === 1) {
-        const mockEntries: LeaderboardEntry[] = [
-          {
-            id: 'user1',
-            name: 'Priya Sharma',
-            streak: 15,
-            wordsLearned: 120,
-            studyTime: 180,
-            level: 'intermediate',
-          },
-          {
-            id: 'user2',
-            name: 'Rahul Kumar',
-            streak: 8,
-            wordsLearned: 85,
-            studyTime: 145,
-            level: 'beginner',
-          },
-          {
-            id: 'user3',
-            name: 'Anita Patel',
-            streak: 22,
-            wordsLearned: 200,
-            studyTime: 280,
-            level: 'advanced',
-          },
-          {
-            id: 'user4',
-            name: 'Amit Singh',
-            streak: 5,
-            wordsLearned: 45,
-            studyTime: 90,
-            level: 'beginner',
-          },
-        ];
-        data = [...data, ...mockEntries];
-      }
+      // No mock entries — only real progress from this device
 
       // Sort by streak (descending)
       data.sort((a, b) => b.streak - a.streak);
@@ -323,13 +286,27 @@ export default function SocialFeatures({ visible, onClose, userStats }: SocialFe
   const renderLeaderboard = () => (
     <ScrollView style={styles.tabContent}>
       <View style={styles.leaderboardHeader}>
-        <Text style={[styles.tabTitle, darkMode && styles.darkText]}>Leaderboard</Text>
+        <View>
+          <Text style={[styles.tabTitle, darkMode && styles.darkText]}>Your Stats</Text>
+          <Text style={[styles.leaderboardNote, darkMode && styles.darkDescription]}>
+            Progress stored on this device
+          </Text>
+        </View>
         <TouchableOpacity style={[styles.shareButton, darkMode && styles.darkShareButton]} onPress={shareProgress}>
           <Ionicons name="share-outline" size={20} color={darkMode ? "#A78BFA" : "#4F46E5"} />
           <Text style={[styles.shareText, darkMode && styles.darkShareText]}>Share</Text>
         </TouchableOpacity>
       </View>
-      
+
+      {leaderboard.length === 0 && (
+        <View style={[styles.emptyState, darkMode && styles.darkEmptyState]}>
+          <Ionicons name="trophy-outline" size={40} color={darkMode ? "#6B7280" : "#9CA3AF"} />
+          <Text style={[styles.emptyStateText, darkMode && styles.darkDescription]}>
+            Start learning to see your stats here!
+          </Text>
+        </View>
+      )}
+
       {leaderboard.map((entry, index) => (
         <View
           key={entry.id}
@@ -735,6 +712,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#10B981',
+  },
+  leaderboardNote: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 2,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  darkEmptyState: {
+    backgroundColor: '#1F2937',
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 12,
+    textAlign: 'center',
   },
   // Dark mode styles
   darkActiveTab: {

@@ -27,7 +27,6 @@ export const speakHindi = async (text: string): Promise<void> => {
             pitch: 1.0,
             rate: 0.75,
             volume: 1.0,
-            quality: Speech.VoiceQuality.Enhanced,
             onStart: () => {
               console.log(`Speaking with ${language}:`, text);
               // Show visual feedback

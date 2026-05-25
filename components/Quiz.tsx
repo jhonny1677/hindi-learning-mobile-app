@@ -4,7 +4,7 @@ import { Word, databaseService } from '../database/database';
 import { useAppContext } from '../contexts/AppContext';
 
 interface QuizProps {
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
   onComplete: (score: { correct: number; total: number }) => void;
   onBack: () => void;
 }
@@ -137,7 +137,7 @@ const Quiz: React.FC<QuizProps> = ({ difficulty, onComplete, onBack }) => {
     <View style={[styles.container, darkMode && styles.darkContainer]}>
       {/* Header */}
       <View style={[styles.header, darkMode && styles.darkHeader]}>
-        <TouchableOpacity style={[styles.backButton, darkMode && styles.darkBackButton]} onPress={onBack}>
+        <TouchableOpacity style={[styles.backButton, darkMode && styles.darkBackButton]} onPress={onBack} accessibilityLabel="Go back" accessibilityRole="button">
           <Text style={[styles.backButtonText, darkMode && styles.darkText]}>← Back</Text>
         </TouchableOpacity>
         <Text style={[styles.progressText, darkMode && styles.darkText]}>Quiz {progress}</Text>
@@ -158,8 +158,8 @@ const Quiz: React.FC<QuizProps> = ({ difficulty, onComplete, onBack }) => {
       {/* Options */}
       <View style={styles.optionsContainer}>
         {(quizOptions || []).map((option, index) => {
-          let buttonStyle = [styles.optionButton, darkMode && styles.darkOptionButton];
-          let textStyle = [styles.optionText, darkMode && styles.darkText];
+          const buttonStyle: object[] = [styles.optionButton, ...(darkMode ? [styles.darkOptionButton] : [])];
+          const textStyle: object[] = [styles.optionText, ...(darkMode ? [styles.darkText] : [])];
           
           if (showResult && selectedOption) {
             if (option === currentWord.english) {
@@ -183,6 +183,9 @@ const Quiz: React.FC<QuizProps> = ({ difficulty, onComplete, onBack }) => {
               style={buttonStyle}
               onPress={() => handleOptionSelect(option)}
               disabled={showResult}
+              accessibilityLabel={option}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: showResult }}
             >
               <Text style={textStyle}>{option}</Text>
             </TouchableOpacity>

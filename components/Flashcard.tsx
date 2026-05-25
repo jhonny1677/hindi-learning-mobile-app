@@ -101,11 +101,11 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
     
     onCorrect();
     
-    // Check if this completion triggers a level completion
-    if (onCompletionCheck) {
+    // Check if this completion triggers a level completion (only for non-urdu difficulties)
+    if (onCompletionCheck && word.difficulty !== 'urdu') {
       const progress = await databaseService.getDifficultyProgress(word.difficulty);
-      if (progress.isComplete) {
-        onCompletionCheck(word.difficulty);
+      if (progress.isComplete && ['beginner', 'intermediate', 'advanced', 'expert'].includes(word.difficulty)) {
+        onCompletionCheck(word.difficulty as 'beginner' | 'intermediate' | 'advanced' | 'expert');
       }
     }
     
@@ -131,13 +131,19 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
 
   return (
     <View style={[styles.container, darkMode && styles.darkContainer]}>
-      <TouchableOpacity onPress={flipCard} style={styles.cardContainer}>
+      <TouchableOpacity
+        onPress={flipCard}
+        style={styles.cardContainer}
+        accessibilityLabel={isFlipped ? `${word.english}. Tap to flip back.` : `${word.hindi}. Tap to reveal meaning.`}
+        accessibilityRole="button"
+        accessibilityHint={isFlipped ? 'Flips card back to Hindi' : 'Reveals the English meaning'}
+      >
         <Animated.View style={[styles.card, darkMode ? styles.darkCardFront : styles.cardFront, frontAnimatedStyle]}>
           <Text style={styles.cardLabel}>Hindi Word</Text>
           <View style={styles.hindiContainer}>
             <Text style={styles.hindiText}>{word.hindi}</Text>
             {!isFlipped && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.speakerButton}
                 onPress={(e) => {
                   e.stopPropagation();
@@ -147,6 +153,8 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
                 }}
                 activeOpacity={0.5}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityLabel={`Pronounce ${word.hindi}`}
+                accessibilityRole="button"
               >
                 <Text style={styles.speakerIcon}>🔊</Text>
               </TouchableOpacity>
@@ -170,16 +178,20 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
 
       {isFlipped && (
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.button, styles.incorrectButton]} 
+          <TouchableOpacity
+            style={[styles.button, styles.incorrectButton]}
             onPress={handleIncorrect}
+            accessibilityLabel="I didn't know this word"
+            accessibilityRole="button"
           >
             <Text style={styles.buttonText}>❌ Didn&apos;t Know</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.button, styles.correctButton]} 
+
+          <TouchableOpacity
+            style={[styles.button, styles.correctButton]}
             onPress={handleCorrect}
+            accessibilityLabel="I got this word correct"
+            accessibilityRole="button"
           >
             <Text style={styles.buttonText}>✅ Got It!</Text>
           </TouchableOpacity>

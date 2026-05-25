@@ -1,23 +1,25 @@
 {
     "expo": {
-      "name": "Hindi Learning App",
-      "slug": "hindi-learning-app",
+      "name": "Seekho Hindi",
+      "slug": "seekho-hindi",
       "version": "1.0.0",
       "orientation": "portrait",
       "icon": "./assets/images/icon.png",
-      "scheme": "hindilearningapp",
+      "scheme": "seekhohindi",
       "userInterfaceStyle": "automatic",
       "newArchEnabled": true,
-      "description": "AI-powered mobile language learning platform with gamification and offline support",
+      "description": "Learn Hindi with flashcards, quizzes, streaks and gamification. Offline-first Hindi learning app.",
       "ios": {
         "bundleIdentifier": "com.ankit.hindilearningapp",
         "supportsTablet": true
       },
       "android": {
         "package": "com.ankit.hindilearningapp",
+        "targetSdkVersion": 34,
+        "minSdkVersion": 24,
         "adaptiveIcon": {
           "foregroundImage": "./assets/images/adaptive-icon.png",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#4F46E5"
         },
         "edgeToEdgeEnabled": true
       },
@@ -35,6 +37,14 @@
             "imageWidth": 200,
             "resizeMode": "contain",
             "backgroundColor": "#ffffff"
+          }
+        ],
+        [
+          "expo-notifications",
+          {
+            "icon": "./assets/images/icon.png",
+            "color": "#4F46E5",
+            "sounds": []
           }
         ]
       ],

@@ -52,8 +52,8 @@ export function useOfflineMode(): UseOfflineModeReturn {
       
       setState(prev => ({
         ...prev,
-        isOnline: isConnected,
-        isConnected,
+        isOnline: isConnected ?? false,
+        isConnected: isConnected ?? false,
       }));
 
       // Auto-sync when coming back online

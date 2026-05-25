@@ -4,7 +4,7 @@ import { databaseService } from '../database/database';
 import { useAppContext } from '../contexts/AppContext';
 
 interface CategoryStatsProps {
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
   onPress?: (e?: any) => void;
 }
 

@@ -48,7 +48,7 @@ export interface Word {
   id: number;
   hindi: string;
   english: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar' | 'urdu';
   pronunciation?: string;
 }
 
@@ -101,13 +101,14 @@ class DatabaseService {
   }
 
   private async seedInitialData() {
-    const currentVersion = "22.2";
+    const currentVersion = "25.0";
     const storedVersion = await storage.getItem('words_version');
     const existingWords = await storage.getItem('words');
     
     if (!existingWords || storedVersion !== currentVersion) {
       await storage.removeItem('words');
       await storage.setItem('words_version', currentVersion);
+      // @ts-ignore - TypeScript cannot handle the union type for a very large literal array
       this.words = [
         // Alphabet and basic characters
         { id: 1, hindi: 'अ', english: 'A (short)', difficulty: 'alphabet', pronunciation: 'a' },
@@ -1910,7 +1911,506 @@ class DatabaseService {
         { id: 1789, hindi: 'फौज', english: 'Army', difficulty: 'intermediate', pronunciation: 'fauj' },
         { id: 1790, hindi: 'मज़ा', english: 'Fun/Pleasure', difficulty: 'beginner', pronunciation: 'maza' },
         { id: 1791, hindi: 'क़ज़ा', english: 'Fate/Destiny', difficulty: 'expert', pronunciation: 'qaza' },
-        { id: 1792, hindi: 'किराया', english: 'Rent', difficulty: 'beginner', pronunciation: 'kiraya' }
+        { id: 1792, hindi: 'किराया', english: 'Rent', difficulty: 'beginner', pronunciation: 'kiraya' },
+        // Grammar: Pronouns
+        { id: 1793, hindi: 'मैं', english: 'I (first person singular)', difficulty: 'grammar', pronunciation: 'main' },
+        { id: 1794, hindi: 'तुम', english: 'You (informal)', difficulty: 'grammar', pronunciation: 'tum' },
+        { id: 1795, hindi: 'आप', english: 'You (formal/respectful)', difficulty: 'grammar', pronunciation: 'aap' },
+        { id: 1796, hindi: 'वह', english: 'He / She / It', difficulty: 'grammar', pronunciation: 'vah' },
+        { id: 1797, hindi: 'हम', english: 'We', difficulty: 'grammar', pronunciation: 'hum' },
+        { id: 1798, hindi: 'वे', english: 'They (formal)', difficulty: 'grammar', pronunciation: 've' },
+        { id: 1799, hindi: 'यह', english: 'This / He / She (near)', difficulty: 'grammar', pronunciation: 'yeh' },
+        { id: 1800, hindi: 'ये', english: 'These / They (near, plural)', difficulty: 'grammar', pronunciation: 'ye' },
+        // Grammar: To-be forms
+        { id: 1801, hindi: 'है', english: 'Is / Are (present singular)', difficulty: 'grammar', pronunciation: 'hai' },
+        { id: 1802, hindi: 'हैं', english: 'Are (present plural/formal)', difficulty: 'grammar', pronunciation: 'hain' },
+        { id: 1803, hindi: 'हूँ', english: 'Am (I am — first person)', difficulty: 'grammar', pronunciation: 'hoon' },
+        { id: 1804, hindi: 'था', english: 'Was (masculine past)', difficulty: 'grammar', pronunciation: 'tha' },
+        { id: 1805, hindi: 'थी', english: 'Was (feminine past)', difficulty: 'grammar', pronunciation: 'thi' },
+        { id: 1806, hindi: 'थे', english: 'Were (masculine plural/formal past)', difficulty: 'grammar', pronunciation: 'the' },
+        { id: 1807, hindi: 'होगा', english: 'Will be (masculine future)', difficulty: 'grammar', pronunciation: 'hoga' },
+        { id: 1808, hindi: 'होगी', english: 'Will be (feminine future)', difficulty: 'grammar', pronunciation: 'hogi' },
+        // Grammar: Common verbs (infinitives)
+        { id: 1809, hindi: 'जाना', english: 'To go', difficulty: 'grammar', pronunciation: 'jaana' },
+        { id: 1810, hindi: 'आना', english: 'To come', difficulty: 'grammar', pronunciation: 'aana' },
+        { id: 1811, hindi: 'करना', english: 'To do', difficulty: 'grammar', pronunciation: 'karna' },
+        { id: 1812, hindi: 'होना', english: 'To be / To happen', difficulty: 'grammar', pronunciation: 'hona' },
+        { id: 1813, hindi: 'बोलना', english: 'To speak / To say', difficulty: 'grammar', pronunciation: 'bolna' },
+        { id: 1814, hindi: 'सुनना', english: 'To listen / To hear', difficulty: 'grammar', pronunciation: 'sunna' },
+        { id: 1815, hindi: 'देखना', english: 'To see / To look', difficulty: 'grammar', pronunciation: 'dekhna' },
+        { id: 1816, hindi: 'पीना', english: 'To drink', difficulty: 'grammar', pronunciation: 'peena' },
+        { id: 1817, hindi: 'सोना', english: 'To sleep', difficulty: 'grammar', pronunciation: 'sona' },
+        { id: 1818, hindi: 'उठना', english: 'To get up / To rise', difficulty: 'grammar', pronunciation: 'uthna' },
+        { id: 1819, hindi: 'बैठना', english: 'To sit', difficulty: 'grammar', pronunciation: 'baithna' },
+        { id: 1820, hindi: 'चलना', english: 'To walk / To move', difficulty: 'grammar', pronunciation: 'chalna' },
+        { id: 1821, hindi: 'पढ़ना', english: 'To read / To study', difficulty: 'grammar', pronunciation: 'padhna' },
+        { id: 1822, hindi: 'लिखना', english: 'To write', difficulty: 'grammar', pronunciation: 'likhna' },
+        { id: 1823, hindi: 'सीखना', english: 'To learn', difficulty: 'grammar', pronunciation: 'seekhna' },
+        { id: 1824, hindi: 'देना', english: 'To give', difficulty: 'grammar', pronunciation: 'dena' },
+        // Grammar: Postpositions
+        { id: 1825, hindi: 'में', english: 'In / Inside (postposition)', difficulty: 'grammar', pronunciation: 'mein' },
+        { id: 1826, hindi: 'पर', english: 'On / Upon (postposition)', difficulty: 'grammar', pronunciation: 'par' },
+        { id: 1827, hindi: 'को', english: 'To / For (dative marker)', difficulty: 'grammar', pronunciation: 'ko' },
+        { id: 1828, hindi: 'से', english: 'From / With / By (ablative)', difficulty: 'grammar', pronunciation: 'se' },
+        { id: 1829, hindi: 'के लिए', english: 'For the sake of / In order to', difficulty: 'grammar', pronunciation: 'ke liye' },
+        { id: 1830, hindi: 'तक', english: 'Until / Up to / As far as', difficulty: 'grammar', pronunciation: 'tak' },
+        { id: 1831, hindi: 'के पास', english: 'Near / Next to / With (possession)', difficulty: 'grammar', pronunciation: 'ke paas' },
+        { id: 1832, hindi: 'के बाद', english: 'After', difficulty: 'grammar', pronunciation: 'ke baad' },
+        { id: 1833, hindi: 'के पहले', english: 'Before', difficulty: 'grammar', pronunciation: 'ke pahle' },
+        // Grammar: Question words
+        { id: 1834, hindi: 'क्या', english: 'What / (yes-no question marker)', difficulty: 'grammar', pronunciation: 'kya' },
+        { id: 1835, hindi: 'कौन', english: 'Who', difficulty: 'grammar', pronunciation: 'kaun' },
+        { id: 1836, hindi: 'कहाँ', english: 'Where', difficulty: 'grammar', pronunciation: 'kahan' },
+        { id: 1837, hindi: 'कब', english: 'When', difficulty: 'grammar', pronunciation: 'kab' },
+        { id: 1838, hindi: 'कैसे', english: 'How', difficulty: 'grammar', pronunciation: 'kaise' },
+        { id: 1839, hindi: 'क्यों', english: 'Why', difficulty: 'grammar', pronunciation: 'kyun' },
+        { id: 1840, hindi: 'कितना', english: 'How much (masculine)', difficulty: 'grammar', pronunciation: 'kitna' },
+        { id: 1841, hindi: 'कितने', english: 'How many', difficulty: 'grammar', pronunciation: 'kitne' },
+        // Grammar: Conjunctions
+        { id: 1842, hindi: 'और', english: 'And', difficulty: 'grammar', pronunciation: 'aur' },
+        { id: 1843, hindi: 'या', english: 'Or', difficulty: 'grammar', pronunciation: 'ya' },
+        { id: 1844, hindi: 'लेकिन', english: 'But / However', difficulty: 'grammar', pronunciation: 'lekin' },
+        { id: 1845, hindi: 'क्योंकि', english: 'Because', difficulty: 'grammar', pronunciation: 'kyunki' },
+        { id: 1846, hindi: 'अगर', english: 'If', difficulty: 'grammar', pronunciation: 'agar' },
+        { id: 1847, hindi: 'तो', english: 'Then / So (result clause)', difficulty: 'grammar', pronunciation: 'to' },
+        { id: 1848, hindi: 'जब', english: 'When / Whenever (temporal)', difficulty: 'grammar', pronunciation: 'jab' },
+        { id: 1849, hindi: 'तब', english: 'Then / At that time', difficulty: 'grammar', pronunciation: 'tab' },
+        // Grammar: Negation
+        { id: 1850, hindi: 'नहीं', english: 'No / Not (negation)', difficulty: 'grammar', pronunciation: 'nahin' },
+        { id: 1851, hindi: 'मत', english: 'Do not (imperative negation)', difficulty: 'grammar', pronunciation: 'mat' },
+        { id: 1852, hindi: 'न', english: 'Neither / Nor / Not (literary)', difficulty: 'grammar', pronunciation: 'na' },
+        // Grammar: Object pronouns / Dative forms
+        { id: 1853, hindi: 'मुझे', english: 'To me / I need (dative of मैं)', difficulty: 'grammar', pronunciation: 'mujhe' },
+        { id: 1854, hindi: 'तुम्हें', english: 'To you (dative of तुम)', difficulty: 'grammar', pronunciation: 'tumhe' },
+        { id: 1855, hindi: 'उसे', english: 'To him / To her (dative of वह)', difficulty: 'grammar', pronunciation: 'use' },
+        { id: 1856, hindi: 'हमें', english: 'To us (dative of हम)', difficulty: 'grammar', pronunciation: 'hame' },
+        { id: 1857, hindi: 'आपको', english: 'To you (formal dative of आप)', difficulty: 'grammar', pronunciation: 'aapko' },
+
+        // ── BEGINNER: Family ──────────────────────────────────────────
+        { id: 1858, hindi: 'दादा', english: 'Paternal grandfather', difficulty: 'beginner', pronunciation: 'daada' },
+        { id: 1859, hindi: 'दादी', english: 'Paternal grandmother', difficulty: 'beginner', pronunciation: 'daadi' },
+        { id: 1860, hindi: 'नाना', english: 'Maternal grandfather', difficulty: 'beginner', pronunciation: 'naana' },
+        { id: 1861, hindi: 'नानी', english: 'Maternal grandmother', difficulty: 'beginner', pronunciation: 'naani' },
+        { id: 1862, hindi: 'चाचा', english: "Uncle (father's younger brother)", difficulty: 'beginner', pronunciation: 'chacha' },
+        { id: 1863, hindi: 'चाची', english: "Aunt (uncle's wife)", difficulty: 'beginner', pronunciation: 'chachi' },
+        { id: 1864, hindi: 'पति', english: 'Husband', difficulty: 'beginner', pronunciation: 'pati' },
+        { id: 1865, hindi: 'पत्नी', english: 'Wife', difficulty: 'beginner', pronunciation: 'patni' },
+
+        // ── BEGINNER: Body Parts ──────────────────────────────────────
+        { id: 1866, hindi: 'गर्दन', english: 'Neck', difficulty: 'beginner', pronunciation: 'gardan' },
+        { id: 1867, hindi: 'कंधा', english: 'Shoulder', difficulty: 'beginner', pronunciation: 'kandha' },
+        { id: 1868, hindi: 'बाँह', english: 'Arm', difficulty: 'beginner', pronunciation: 'baanh' },
+        { id: 1869, hindi: 'उँगली', english: 'Finger', difficulty: 'beginner', pronunciation: 'ungli' },
+        { id: 1870, hindi: 'अँगूठा', english: 'Thumb', difficulty: 'beginner', pronunciation: 'angutha' },
+        { id: 1871, hindi: 'पीठ', english: 'Back (of body)', difficulty: 'beginner', pronunciation: 'peeth' },
+        { id: 1872, hindi: 'छाती', english: 'Chest', difficulty: 'beginner', pronunciation: 'chhaati' },
+        { id: 1873, hindi: 'पेट', english: 'Stomach / Belly', difficulty: 'beginner', pronunciation: 'pet' },
+        { id: 1874, hindi: 'घुटना', english: 'Knee', difficulty: 'beginner', pronunciation: 'ghutna' },
+        { id: 1875, hindi: 'कोहनी', english: 'Elbow', difficulty: 'beginner', pronunciation: 'kohni' },
+        { id: 1876, hindi: 'होंठ', english: 'Lips', difficulty: 'beginner', pronunciation: 'honth' },
+        { id: 1877, hindi: 'जीभ', english: 'Tongue', difficulty: 'beginner', pronunciation: 'jeebh' },
+        { id: 1878, hindi: 'माथा', english: 'Forehead', difficulty: 'beginner', pronunciation: 'maatha' },
+        { id: 1879, hindi: 'गाल', english: 'Cheek', difficulty: 'beginner', pronunciation: 'gaal' },
+
+        // ── BEGINNER: Numbers 6–10 + round numbers ───────────────────
+        { id: 1880, hindi: 'छह', english: 'Six', difficulty: 'beginner', pronunciation: 'chhe' },
+        { id: 1881, hindi: 'सात', english: 'Seven', difficulty: 'beginner', pronunciation: 'saat' },
+        { id: 1882, hindi: 'आठ', english: 'Eight', difficulty: 'beginner', pronunciation: 'aath' },
+        { id: 1883, hindi: 'नौ', english: 'Nine', difficulty: 'beginner', pronunciation: 'nau' },
+        { id: 1884, hindi: 'दस', english: 'Ten', difficulty: 'beginner', pronunciation: 'das' },
+        { id: 1885, hindi: 'बीस', english: 'Twenty', difficulty: 'beginner', pronunciation: 'bees' },
+        { id: 1886, hindi: 'पचास', english: 'Fifty', difficulty: 'beginner', pronunciation: 'pachaas' },
+        { id: 1887, hindi: 'सौ', english: 'Hundred', difficulty: 'beginner', pronunciation: 'sau' },
+        { id: 1888, hindi: 'हज़ार', english: 'Thousand', difficulty: 'beginner', pronunciation: 'hazaar' },
+
+        // ── BEGINNER: Colors ──────────────────────────────────────────
+        { id: 1889, hindi: 'भूरा', english: 'Brown', difficulty: 'beginner', pronunciation: 'bhoora' },
+        { id: 1890, hindi: 'गुलाबी', english: 'Pink', difficulty: 'beginner', pronunciation: 'gulaabi' },
+        { id: 1891, hindi: 'नारंगी', english: 'Orange (colour)', difficulty: 'beginner', pronunciation: 'naarangi' },
+        { id: 1892, hindi: 'बैंगनी', english: 'Purple / Violet', difficulty: 'beginner', pronunciation: 'baingani' },
+        { id: 1893, hindi: 'सलेटी', english: 'Gray', difficulty: 'beginner', pronunciation: 'saleti' },
+
+        // ── BEGINNER: Animals ─────────────────────────────────────────
+        { id: 1894, hindi: 'गाय', english: 'Cow', difficulty: 'beginner', pronunciation: 'gaay' },
+        { id: 1895, hindi: 'घोड़ा', english: 'Horse', difficulty: 'beginner', pronunciation: 'ghoda' },
+        { id: 1896, hindi: 'बकरी', english: 'Goat', difficulty: 'beginner', pronunciation: 'bakri' },
+        { id: 1897, hindi: 'भेड़', english: 'Sheep', difficulty: 'beginner', pronunciation: 'bhed' },
+        { id: 1898, hindi: 'मुर्गी', english: 'Hen / Chicken', difficulty: 'beginner', pronunciation: 'murgi' },
+        { id: 1899, hindi: 'चिड़िया', english: 'Bird', difficulty: 'beginner', pronunciation: 'chidiya' },
+        { id: 1900, hindi: 'तोता', english: 'Parrot', difficulty: 'beginner', pronunciation: 'tota' },
+        { id: 1901, hindi: 'शेर', english: 'Lion', difficulty: 'beginner', pronunciation: 'sher' },
+        { id: 1902, hindi: 'बाघ', english: 'Tiger', difficulty: 'beginner', pronunciation: 'baagh' },
+        { id: 1903, hindi: 'हाथी', english: 'Elephant', difficulty: 'beginner', pronunciation: 'haathi' },
+        { id: 1904, hindi: 'ऊँट', english: 'Camel', difficulty: 'beginner', pronunciation: 'oont' },
+        { id: 1905, hindi: 'गधा', english: 'Donkey', difficulty: 'beginner', pronunciation: 'gadha' },
+        { id: 1906, hindi: 'बंदर', english: 'Monkey', difficulty: 'beginner', pronunciation: 'bandar' },
+        { id: 1907, hindi: 'साँप', english: 'Snake', difficulty: 'beginner', pronunciation: 'saanp' },
+        { id: 1908, hindi: 'मेंढक', english: 'Frog', difficulty: 'beginner', pronunciation: 'mendhak' },
+
+        // ── BEGINNER: Food & Spices ───────────────────────────────────
+        { id: 1909, hindi: 'प्याज़', english: 'Onion', difficulty: 'beginner', pronunciation: 'pyaaz' },
+        { id: 1910, hindi: 'लहसुन', english: 'Garlic', difficulty: 'beginner', pronunciation: 'lahsun' },
+        { id: 1911, hindi: 'अदरक', english: 'Ginger', difficulty: 'beginner', pronunciation: 'adrak' },
+        { id: 1912, hindi: 'घी', english: 'Clarified butter / Ghee', difficulty: 'beginner', pronunciation: 'ghee' },
+        { id: 1913, hindi: 'पनीर', english: 'Cottage cheese / Paneer', difficulty: 'beginner', pronunciation: 'paneer' },
+        { id: 1914, hindi: 'टमाटर', english: 'Tomato', difficulty: 'beginner', pronunciation: 'tamaatar' },
+        { id: 1915, hindi: 'आलू', english: 'Potato', difficulty: 'beginner', pronunciation: 'aalu' },
+        { id: 1916, hindi: 'मसाला', english: 'Spice mix / Masala', difficulty: 'beginner', pronunciation: 'masaala' },
+        { id: 1917, hindi: 'नींबू', english: 'Lemon / Lime', difficulty: 'beginner', pronunciation: 'neembu' },
+        { id: 1918, hindi: 'नारियल', english: 'Coconut', difficulty: 'beginner', pronunciation: 'naariyal' },
+
+        // ── BEGINNER: Transport ───────────────────────────────────────
+        { id: 1919, hindi: 'हवाई जहाज़', english: 'Airplane', difficulty: 'beginner', pronunciation: 'hawai jahaz' },
+        { id: 1920, hindi: 'हेलीकॉप्टर', english: 'Helicopter', difficulty: 'beginner', pronunciation: 'helicopter' },
+
+        // ── BEGINNER: Home ────────────────────────────────────────────
+        { id: 1921, hindi: 'पर्दा', english: 'Curtain', difficulty: 'beginner', pronunciation: 'parda' },
+        { id: 1922, hindi: 'गलीचा', english: 'Carpet / Rug', difficulty: 'beginner', pronunciation: 'galicha' },
+        { id: 1923, hindi: 'नल', english: 'Tap / Faucet', difficulty: 'beginner', pronunciation: 'nal' },
+        { id: 1924, hindi: 'बाल्टी', english: 'Bucket', difficulty: 'beginner', pronunciation: 'balti' },
+        { id: 1925, hindi: 'शौचालय', english: 'Toilet / Washroom', difficulty: 'beginner', pronunciation: 'shauchalay' },
+
+        // ── BEGINNER: School ──────────────────────────────────────────
+        { id: 1926, hindi: 'कलम', english: 'Pen', difficulty: 'beginner', pronunciation: 'qalam' },
+        { id: 1927, hindi: 'पेंसिल', english: 'Pencil', difficulty: 'beginner', pronunciation: 'pencil' },
+        { id: 1928, hindi: 'कापी', english: 'Notebook / Exercise book', difficulty: 'beginner', pronunciation: 'kaapi' },
+        { id: 1929, hindi: 'कक्षा', english: 'Classroom / Class', difficulty: 'beginner', pronunciation: 'kaksha' },
+        { id: 1930, hindi: 'रबड़', english: 'Eraser', difficulty: 'beginner', pronunciation: 'rabar' },
+        { id: 1931, hindi: 'स्केल', english: 'Ruler', difficulty: 'beginner', pronunciation: 'scale' },
+
+        // ── BEGINNER: Health ──────────────────────────────────────────
+        { id: 1932, hindi: 'अस्पताल', english: 'Hospital', difficulty: 'beginner', pronunciation: 'aspataal' },
+        { id: 1933, hindi: 'नर्स', english: 'Nurse', difficulty: 'beginner', pronunciation: 'nurse' },
+        { id: 1934, hindi: 'ज़ुकाम', english: 'Common cold', difficulty: 'beginner', pronunciation: 'zukaam' },
+        { id: 1935, hindi: 'घाव', english: 'Wound / Injury', difficulty: 'beginner', pronunciation: 'ghaav' },
+
+        // ── BEGINNER: Time ────────────────────────────────────────────
+        { id: 1936, hindi: 'घंटा', english: 'Hour', difficulty: 'beginner', pronunciation: 'ghanta' },
+        { id: 1937, hindi: 'मिनट', english: 'Minute', difficulty: 'beginner', pronunciation: 'minat' },
+        { id: 1938, hindi: 'आज', english: 'Today', difficulty: 'beginner', pronunciation: 'aaj' },
+        { id: 1939, hindi: 'कल', english: 'Yesterday / Tomorrow (context-dependent)', difficulty: 'beginner', pronunciation: 'kal' },
+        { id: 1940, hindi: 'परसों', english: 'Day before yesterday / Day after tomorrow', difficulty: 'beginner', pronunciation: 'parson' },
+        { id: 1941, hindi: 'सप्ताह', english: 'Week', difficulty: 'beginner', pronunciation: 'saptaah' },
+
+        // ── BEGINNER: Directions ──────────────────────────────────────
+        { id: 1942, hindi: 'उत्तर', english: 'North', difficulty: 'beginner', pronunciation: 'uttar' },
+        { id: 1943, hindi: 'दक्षिण', english: 'South', difficulty: 'beginner', pronunciation: 'dakshin' },
+        { id: 1944, hindi: 'पूर्व', english: 'East', difficulty: 'beginner', pronunciation: 'poorv' },
+        { id: 1945, hindi: 'पश्चिम', english: 'West', difficulty: 'beginner', pronunciation: 'pashchim' },
+        { id: 1946, hindi: 'बीच', english: 'Middle / Centre', difficulty: 'beginner', pronunciation: 'beech' },
+
+        // ── BEGINNER: Nature ──────────────────────────────────────────
+        { id: 1947, hindi: 'मिट्टी', english: 'Soil / Earth / Mud', difficulty: 'beginner', pronunciation: 'mitti' },
+        { id: 1948, hindi: 'पत्थर', english: 'Stone / Rock', difficulty: 'beginner', pronunciation: 'patthar' },
+        { id: 1949, hindi: 'रेत', english: 'Sand', difficulty: 'beginner', pronunciation: 'ret' },
+        { id: 1950, hindi: 'घास', english: 'Grass', difficulty: 'beginner', pronunciation: 'ghaas' },
+        { id: 1951, hindi: 'बीज', english: 'Seed', difficulty: 'beginner', pronunciation: 'beej' },
+        { id: 1952, hindi: 'जड़', english: 'Root (of a plant)', difficulty: 'beginner', pronunciation: 'jar' },
+
+        // ── INTERMEDIATE: Sports & Entertainment ─────────────────────
+        { id: 1953, hindi: 'खेल', english: 'Sport / Game', difficulty: 'intermediate', pronunciation: 'khel' },
+        { id: 1954, hindi: 'क्रिकेट', english: 'Cricket', difficulty: 'intermediate', pronunciation: 'cricket' },
+        { id: 1955, hindi: 'फुटबॉल', english: 'Football / Soccer', difficulty: 'intermediate', pronunciation: 'football' },
+        { id: 1956, hindi: 'जीत', english: 'Victory / Win', difficulty: 'intermediate', pronunciation: 'jeet' },
+        { id: 1957, hindi: 'हार', english: 'Defeat / Loss', difficulty: 'intermediate', pronunciation: 'haar' },
+        { id: 1958, hindi: 'खिलाड़ी', english: 'Player / Athlete', difficulty: 'intermediate', pronunciation: 'khilaadi' },
+        { id: 1959, hindi: 'दर्शक', english: 'Audience / Spectator', difficulty: 'intermediate', pronunciation: 'darshak' },
+        { id: 1960, hindi: 'फ़िल्म', english: 'Film / Movie', difficulty: 'intermediate', pronunciation: 'film' },
+        { id: 1961, hindi: 'गाना', english: 'Song', difficulty: 'intermediate', pronunciation: 'gaana' },
+        { id: 1962, hindi: 'कहानी', english: 'Story', difficulty: 'intermediate', pronunciation: 'kahaani' },
+
+        // ── INTERMEDIATE: Society & Institutions ─────────────────────
+        { id: 1963, hindi: 'दुकान', english: 'Shop / Store', difficulty: 'intermediate', pronunciation: 'dukaan' },
+        { id: 1964, hindi: 'सड़क', english: 'Road / Street', difficulty: 'intermediate', pronunciation: 'sadak' },
+        { id: 1965, hindi: 'पुल', english: 'Bridge', difficulty: 'intermediate', pronunciation: 'pul' },
+        { id: 1966, hindi: 'मंदिर', english: 'Temple', difficulty: 'intermediate', pronunciation: 'mandir' },
+        { id: 1967, hindi: 'मस्जिद', english: 'Mosque', difficulty: 'intermediate', pronunciation: 'masjid' },
+        { id: 1968, hindi: 'अदालत', english: 'Court (legal)', difficulty: 'intermediate', pronunciation: 'adalat' },
+        { id: 1969, hindi: 'जेल', english: 'Prison / Jail', difficulty: 'intermediate', pronunciation: 'jel' },
+        { id: 1970, hindi: 'शांति', english: 'Peace / Calm', difficulty: 'intermediate', pronunciation: 'shaanti' },
+        { id: 1971, hindi: 'समाज', english: 'Society', difficulty: 'intermediate', pronunciation: 'samaaj' },
+        { id: 1972, hindi: 'संस्कृति', english: 'Culture', difficulty: 'intermediate', pronunciation: 'sanskriti' },
+
+        // ── INTERMEDIATE: Science & Education ────────────────────────
+        { id: 1973, hindi: 'विज्ञान', english: 'Science', difficulty: 'intermediate', pronunciation: 'vigyan' },
+        { id: 1974, hindi: 'गणित', english: 'Mathematics', difficulty: 'intermediate', pronunciation: 'ganit' },
+        { id: 1975, hindi: 'इतिहास', english: 'History', difficulty: 'intermediate', pronunciation: 'itihaas' },
+        { id: 1976, hindi: 'भूगोल', english: 'Geography', difficulty: 'intermediate', pronunciation: 'bhugol' },
+        { id: 1977, hindi: 'कला', english: 'Art', difficulty: 'intermediate', pronunciation: 'kala' },
+        { id: 1978, hindi: 'पुस्तकालय', english: 'Library', difficulty: 'intermediate', pronunciation: 'pustakaalay' },
+        { id: 1979, hindi: 'प्रयोगशाला', english: 'Laboratory', difficulty: 'intermediate', pronunciation: 'prayogshala' },
+        { id: 1980, hindi: 'कंप्यूटर', english: 'Computer', difficulty: 'intermediate', pronunciation: 'computer' },
+
+        // ── ADVANCED: Civic & Abstract concepts ──────────────────────
+        { id: 1981, hindi: 'संविधान', english: 'Constitution', difficulty: 'advanced', pronunciation: 'samvidhaan' },
+        { id: 1982, hindi: 'अधिकार', english: 'Right / Authority', difficulty: 'advanced', pronunciation: 'adhikaar' },
+        { id: 1983, hindi: 'कर्तव्य', english: 'Duty / Obligation', difficulty: 'advanced', pronunciation: 'kartavya' },
+        { id: 1984, hindi: 'राष्ट्र', english: 'Nation', difficulty: 'advanced', pronunciation: 'rashtra' },
+        { id: 1985, hindi: 'परंपरा', english: 'Tradition / Custom', difficulty: 'advanced', pronunciation: 'parampara' },
+        { id: 1986, hindi: 'तकनीक', english: 'Technology', difficulty: 'advanced', pronunciation: 'takneek' },
+        { id: 1987, hindi: 'विज्ञापन', english: 'Advertisement', difficulty: 'advanced', pronunciation: 'vigyaapan' },
+        { id: 1988, hindi: 'प्रगति', english: 'Progress / Advancement', difficulty: 'advanced', pronunciation: 'pragati' },
+        { id: 1989, hindi: 'विकास', english: 'Development / Growth', difficulty: 'advanced', pronunciation: 'vikaas' },
+        { id: 1990, hindi: 'समस्या', english: 'Problem', difficulty: 'advanced', pronunciation: 'samasya' },
+        { id: 1991, hindi: 'चुनौती', english: 'Challenge', difficulty: 'advanced', pronunciation: 'chunauti' },
+        { id: 1992, hindi: 'नागरिक', english: 'Citizen', difficulty: 'advanced', pronunciation: 'naagarik' },
+        { id: 1993, hindi: 'वैज्ञानिक', english: 'Scientist / Scientific', difficulty: 'advanced', pronunciation: 'vaigyanik' },
+        { id: 1994, hindi: 'प्राकृतिक', english: 'Natural', difficulty: 'advanced', pronunciation: 'praakritik' },
+        { id: 1995, hindi: 'पर्यावरण', english: 'Environment', difficulty: 'advanced', pronunciation: 'paryaavaran' },
+
+        // ══════════════════════════════════════════════════════════════
+        // URDU DECK — 210 words confirmed not already in the database
+        // ══════════════════════════════════════════════════════════════
+
+        // ── Greetings & Social ────────────────────────────────────────
+        { id: 1996, hindi: 'मुबारकबाद', english: 'Congratulations', difficulty: 'urdu', pronunciation: 'mubarakbaad' },
+        { id: 1997, hindi: 'ख़ुश आमदीद', english: 'Welcome', difficulty: 'urdu', pronunciation: 'khush aamdeed' },
+        { id: 1998, hindi: 'शुक्रगुज़ार', english: 'Grateful / Thankful', difficulty: 'urdu', pronunciation: 'shukargurzaar' },
+        { id: 1999, hindi: 'तशरीफ़', english: 'Your honoured presence (tashreef laiye = please come)', difficulty: 'urdu', pronunciation: 'tashreef' },
+        { id: 2000, hindi: 'फ़रमाइए', english: 'Please say / Please go ahead', difficulty: 'urdu', pronunciation: 'farmaiye' },
+        { id: 2001, hindi: 'दिल से', english: 'From the heart / Sincerely', difficulty: 'urdu', pronunciation: 'dil se' },
+        { id: 2002, hindi: 'यानी', english: 'That is / In other words / Meaning', difficulty: 'urdu', pronunciation: 'yaani' },
+        { id: 2003, hindi: 'दरअसल', english: 'Actually / In fact / To be honest', difficulty: 'urdu', pronunciation: 'darasal' },
+
+        // ── Everyday Urdu ─────────────────────────────────────────────
+        { id: 2004, hindi: 'ज़िंदगी', english: 'Life', difficulty: 'urdu', pronunciation: 'zindagi' },
+        { id: 2005, hindi: 'ज़रूरी', english: 'Necessary / Essential', difficulty: 'urdu', pronunciation: 'zaroori' },
+        { id: 2006, hindi: 'काफ़ी', english: 'Enough / Quite / Sufficient', difficulty: 'urdu', pronunciation: 'kaafi' },
+        { id: 2007, hindi: 'नामुमकिन', english: 'Impossible', difficulty: 'urdu', pronunciation: 'naamumkin' },
+        { id: 2008, hindi: 'बिल्कुल', english: 'Absolutely / Exactly / Completely', difficulty: 'urdu', pronunciation: 'bilkul' },
+        { id: 2009, hindi: 'दोबारा', english: 'Again / Once more', difficulty: 'urdu', pronunciation: 'dobara' },
+
+        // ── Islamic & Religious Culture ───────────────────────────────
+        { id: 2010, hindi: 'नमाज़', english: 'Islamic prayer (5 daily prayers)', difficulty: 'urdu', pronunciation: 'namaaz' },
+        { id: 2011, hindi: 'रोज़ा', english: 'Fast / Ramadan fast', difficulty: 'urdu', pronunciation: 'roza' },
+        { id: 2012, hindi: 'ईद', english: 'Eid festival', difficulty: 'urdu', pronunciation: 'eid' },
+        { id: 2013, hindi: 'ज़कात', english: 'Islamic almsgiving / Compulsory charity', difficulty: 'urdu', pronunciation: 'zakat' },
+        { id: 2014, hindi: 'अज़ान', english: 'Call to prayer', difficulty: 'urdu', pronunciation: 'azaan' },
+        { id: 2015, hindi: 'जन्नत', english: 'Paradise / Heaven', difficulty: 'urdu', pronunciation: 'jannat' },
+        { id: 2016, hindi: 'जहन्नम', english: 'Hell', difficulty: 'urdu', pronunciation: 'jahannam' },
+        { id: 2017, hindi: 'फ़रिश्ता', english: 'Angel', difficulty: 'urdu', pronunciation: 'farishta' },
+        { id: 2018, hindi: 'इंशाअल्लाह', english: 'God willing (InshaAllah)', difficulty: 'urdu', pronunciation: 'inshallah' },
+        { id: 2019, hindi: 'माशाअल्लाह', english: 'What God has willed (expression of admiration)', difficulty: 'urdu', pronunciation: 'mashallah' },
+        { id: 2020, hindi: 'सुभानअल्लाह', english: 'Glory to God (expression of wonder)', difficulty: 'urdu', pronunciation: 'subhanallah' },
+        { id: 2021, hindi: 'तकदीर', english: 'Destiny / Fate', difficulty: 'urdu', pronunciation: 'taqdeer' },
+        { id: 2022, hindi: 'वज़ू', english: 'Ritual ablution performed before prayer', difficulty: 'urdu', pronunciation: 'wazu' },
+        { id: 2023, hindi: 'इमाम', english: 'Prayer leader / Religious head', difficulty: 'urdu', pronunciation: 'imaam' },
+        { id: 2024, hindi: 'मज़हब', english: 'Religion (Urdu word)', difficulty: 'urdu', pronunciation: 'mazhab' },
+
+        // ── Urdu Literary & Poetry Terms ─────────────────────────────
+        { id: 2025, hindi: 'ग़ज़ल', english: 'Ghazal — lyric poem with rhyming couplets', difficulty: 'urdu', pronunciation: 'ghazal' },
+        { id: 2026, hindi: 'मुशायरा', english: 'Poetry gathering / Mushaira', difficulty: 'urdu', pronunciation: 'mushaira' },
+        { id: 2027, hindi: 'क़सीदा', english: 'Ode / Panegyric poem praising a person', difficulty: 'urdu', pronunciation: 'qaseeda' },
+        { id: 2028, hindi: 'मर्सिया', english: 'Elegy / Poem of mourning', difficulty: 'urdu', pronunciation: 'marsia' },
+        { id: 2029, hindi: 'मतला', english: 'Opening couplet of a ghazal', difficulty: 'urdu', pronunciation: 'matla' },
+        { id: 2030, hindi: 'मक़ता', english: 'Closing couplet of a ghazal (contains pen name)', difficulty: 'urdu', pronunciation: 'maqta' },
+        { id: 2031, hindi: 'रदीफ़', english: 'Repeated word or phrase at end of each couplet in a ghazal', difficulty: 'urdu', pronunciation: 'radeef' },
+        { id: 2032, hindi: 'दीवान', english: 'Collected works of a poet / Poetry anthology', difficulty: 'urdu', pronunciation: 'deewaan' },
+        { id: 2033, hindi: 'शागिर्द', english: 'Disciple / Student (especially of a poet or master)', difficulty: 'urdu', pronunciation: 'shaagird' },
+        { id: 2034, hindi: 'शे\'र', english: 'Poetic couplet / Verse (not to be confused with शेर = lion)', difficulty: 'urdu', pronunciation: 'sher' },
+
+        // ── Urdu Food & Cuisine ───────────────────────────────────────
+        { id: 2035, hindi: 'क़ोरमा', english: 'Korma — braised meat in spiced yogurt sauce', difficulty: 'urdu', pronunciation: 'korma' },
+        { id: 2036, hindi: 'क़ीमा', english: 'Minced meat / Keema', difficulty: 'urdu', pronunciation: 'qeema' },
+        { id: 2037, hindi: 'खीर', english: 'Kheer — sweet rice pudding with milk', difficulty: 'urdu', pronunciation: 'kheer' },
+        { id: 2038, hindi: 'नान', english: 'Naan — leavened flatbread baked in tandoor', difficulty: 'urdu', pronunciation: 'naan' },
+        { id: 2039, hindi: 'परांठा', english: 'Paratha — pan-fried layered flatbread', difficulty: 'urdu', pronunciation: 'paraatha' },
+        { id: 2040, hindi: 'शरबत', english: 'Sharbat — sweet cold drink / Sherbet', difficulty: 'urdu', pronunciation: 'sharbat' },
+        { id: 2041, hindi: 'क़ुलफ़ी', english: 'Kulfi — traditional Indian ice cream', difficulty: 'urdu', pronunciation: 'kulfi' },
+        { id: 2042, hindi: 'चाट', english: 'Chaat — tangy spicy street snack', difficulty: 'urdu', pronunciation: 'chaat' },
+        { id: 2043, hindi: 'सेवइयाँ', english: 'Sewaiyaan — sweet vermicelli (cooked for Eid)', difficulty: 'urdu', pronunciation: 'sewaiyaan' },
+        { id: 2044, hindi: 'ज़र्दा', english: 'Zarda — sweet saffron rice dessert', difficulty: 'urdu', pronunciation: 'zarda' },
+        { id: 2045, hindi: 'शोरबा', english: 'Shorba — broth / Light spiced soup', difficulty: 'urdu', pronunciation: 'shorba' },
+
+        // ── People & Relationships ────────────────────────────────────
+        { id: 2046, hindi: 'महबूब', english: 'Beloved (masculine)', difficulty: 'urdu', pronunciation: 'mehboob' },
+        { id: 2047, hindi: 'माशूक़', english: 'Beloved / Sweetheart (object of love)', difficulty: 'urdu', pronunciation: 'maashuq' },
+        { id: 2048, hindi: 'हमराज़', english: 'Confidant / One who shares secrets', difficulty: 'urdu', pronunciation: 'hamraaz' },
+        { id: 2049, hindi: 'वफ़ादार', english: 'Loyal / Faithful', difficulty: 'urdu', pronunciation: 'wafadaar' },
+        { id: 2050, hindi: 'बेवफ़ा', english: 'Disloyal / Unfaithful / Treacherous', difficulty: 'urdu', pronunciation: 'bewafa' },
+        { id: 2051, hindi: 'परदेसी', english: 'Outsider / Person from another land', difficulty: 'urdu', pronunciation: 'pardesi' },
+        { id: 2052, hindi: 'दर्वेश', english: 'Dervish / Wandering Sufi mystic', difficulty: 'urdu', pronunciation: 'darwesh' },
+        { id: 2053, hindi: 'मलंग', english: 'Carefree wandering mystic', difficulty: 'urdu', pronunciation: 'malang' },
+        { id: 2054, hindi: 'सूफ़ी', english: 'Sufi — Islamic mystic who seeks God through love', difficulty: 'urdu', pronunciation: 'sufi' },
+        { id: 2055, hindi: 'नवाब', english: 'Nawab — Muslim nobleman / person of wealth', difficulty: 'urdu', pronunciation: 'navaab' },
+
+        // ── Emotions & Feelings ───────────────────────────────────────
+        { id: 2056, hindi: 'तड़प', english: 'Yearning / Burning longing / Restless desire', difficulty: 'urdu', pronunciation: 'tadap' },
+        { id: 2057, hindi: 'एहसास', english: 'Feeling / Realization / Sense', difficulty: 'urdu', pronunciation: 'ehsaas' },
+        { id: 2058, hindi: 'सरूर', english: 'Bliss / Pleasurable intoxication', difficulty: 'urdu', pronunciation: 'saroor' },
+        { id: 2059, hindi: 'कैफ़', english: 'Ecstasy / Blissful state', difficulty: 'urdu', pronunciation: 'kaif' },
+        { id: 2060, hindi: 'ग़रूर', english: 'Pride / Arrogance', difficulty: 'urdu', pronunciation: 'gharoor' },
+        { id: 2061, hindi: 'शर्मिंदा', english: 'Ashamed / Embarrassed', difficulty: 'urdu', pronunciation: 'sharminda' },
+        { id: 2062, hindi: 'ना-उम्मीद', english: 'Hopeless / Despairing', difficulty: 'urdu', pronunciation: 'na-ummeed' },
+        { id: 2063, hindi: 'ख़मोशी', english: 'Silence', difficulty: 'urdu', pronunciation: 'khaamoshi' },
+        { id: 2064, hindi: 'लगन', english: 'Passionate dedication / Longing', difficulty: 'urdu', pronunciation: 'lagan' },
+        { id: 2065, hindi: 'ख़याल', english: 'Thought / Idea / Care for someone', difficulty: 'urdu', pronunciation: 'khayaal' },
+
+        // ── Household & Daily Life ────────────────────────────────────
+        { id: 2066, hindi: 'आंगन', english: 'Courtyard inside a house', difficulty: 'urdu', pronunciation: 'aangan' },
+        { id: 2067, hindi: 'मोहल्ला', english: 'Neighbourhood / Locality', difficulty: 'urdu', pronunciation: 'mohalla' },
+        { id: 2068, hindi: 'चारपाई', english: 'Traditional rope-woven cot', difficulty: 'urdu', pronunciation: 'chaarpaaee' },
+        { id: 2069, hindi: 'रज़ाई', english: 'Quilt / Thick cotton blanket', difficulty: 'urdu', pronunciation: 'razaaee' },
+        { id: 2070, hindi: 'लालटेन', english: 'Lantern / Oil lamp', difficulty: 'urdu', pronunciation: 'laalten' },
+        { id: 2071, hindi: 'हुक्का', english: 'Hookah / Water pipe', difficulty: 'urdu', pronunciation: 'hookah' },
+        { id: 2072, hindi: 'पान', english: 'Betel leaf (chewed after meals)', difficulty: 'urdu', pronunciation: 'paan' },
+        { id: 2073, hindi: 'किराना', english: 'Grocery / General store goods', difficulty: 'urdu', pronunciation: 'kiraana' },
+        { id: 2074, hindi: 'दरी', english: 'Flat floor mat / Thin carpet', difficulty: 'urdu', pronunciation: 'dari' },
+        { id: 2075, hindi: 'सायबान', english: 'Awning / Canopy / Shade structure', difficulty: 'urdu', pronunciation: 'saayabaan' },
+        { id: 2076, hindi: 'खटिया', english: 'Low light rope cot', difficulty: 'urdu', pronunciation: 'khatiya' },
+        { id: 2077, hindi: 'तंदूर', english: 'Tandoor — cylindrical clay oven', difficulty: 'urdu', pronunciation: 'tandoor' },
+        { id: 2078, hindi: 'कुल्हड़', english: 'Kulhad — small unglazed clay cup used for tea', difficulty: 'urdu', pronunciation: 'kulhad' },
+        { id: 2079, hindi: 'रोज़मर्रा', english: 'Daily / Everyday routine', difficulty: 'urdu', pronunciation: 'roz-marra' },
+
+        // ── Nature & Cosmos ───────────────────────────────────────────
+        { id: 2080, hindi: 'आफ़ताब', english: 'Sun (poetic Urdu)', difficulty: 'urdu', pronunciation: 'aaftaab' },
+        { id: 2081, hindi: 'माहताब', english: 'Moon (poetic Urdu)', difficulty: 'urdu', pronunciation: 'maahtaab' },
+        { id: 2082, hindi: 'सितारा', english: 'Star', difficulty: 'urdu', pronunciation: 'sitaara' },
+        { id: 2083, hindi: 'लहर', english: 'Wave / Ripple', difficulty: 'urdu', pronunciation: 'lahar' },
+        { id: 2084, hindi: 'झरना', english: 'Waterfall', difficulty: 'urdu', pronunciation: 'jharna' },
+        { id: 2085, hindi: 'कली', english: 'Flower bud', difficulty: 'urdu', pronunciation: 'kali' },
+        { id: 2086, hindi: 'ग़ुंचा', english: 'Rose bud (Urdu poetic word)', difficulty: 'urdu', pronunciation: 'ghuncha' },
+        { id: 2087, hindi: 'नसीम', english: 'Gentle cool breeze', difficulty: 'urdu', pronunciation: 'naseem' },
+        { id: 2088, hindi: 'ओस', english: 'Dew', difficulty: 'urdu', pronunciation: 'os' },
+        { id: 2089, hindi: 'धुंध', english: 'Mist / Haze', difficulty: 'urdu', pronunciation: 'dhundh' },
+
+        // ── Urdu Colors ───────────────────────────────────────────────
+        { id: 2090, hindi: 'ज़र्द', english: 'Yellow / Pale (also used for sickly pallor)', difficulty: 'urdu', pronunciation: 'zard' },
+        { id: 2091, hindi: 'सब्ज़', english: 'Green (Urdu word)', difficulty: 'urdu', pronunciation: 'sabz' },
+        { id: 2092, hindi: 'सियाह', english: 'Black (formal Urdu)', difficulty: 'urdu', pronunciation: 'siyaah' },
+        { id: 2093, hindi: 'ज़ाफ़रानी', english: 'Saffron / Orange-yellow colour', difficulty: 'urdu', pronunciation: 'zaafraani' },
+        { id: 2094, hindi: 'अर्ग़वानी', english: 'Crimson / Deep purple', difficulty: 'urdu', pronunciation: 'arghwaani' },
+        { id: 2095, hindi: 'नक़रई', english: 'Silver-coloured', difficulty: 'urdu', pronunciation: 'naqraaee' },
+
+        // ── Professions (Urdu terms) ──────────────────────────────────
+        { id: 2096, hindi: 'लोहार', english: 'Blacksmith', difficulty: 'urdu', pronunciation: 'lohaar' },
+        { id: 2097, hindi: 'बढ़ई', english: 'Carpenter', difficulty: 'urdu', pronunciation: 'badhaaee' },
+        { id: 2098, hindi: 'कुम्हार', english: 'Potter', difficulty: 'urdu', pronunciation: 'kumhaar' },
+        { id: 2099, hindi: 'धोबी', english: 'Washerman / Launderer', difficulty: 'urdu', pronunciation: 'dhobi' },
+        { id: 2100, hindi: 'मछुआरा', english: 'Fisherman', difficulty: 'urdu', pronunciation: 'machhwaara' },
+        { id: 2101, hindi: 'हकीम', english: 'Traditional medicine practitioner / Herbalist', difficulty: 'urdu', pronunciation: 'hakeem' },
+
+        // ── Expressions & Qualifiers ──────────────────────────────────
+        { id: 2102, hindi: 'लाज़िम', english: 'Compulsory / Necessary / Inevitable', difficulty: 'urdu', pronunciation: 'laazim' },
+        { id: 2103, hindi: 'बे-शक', english: 'Without doubt / Certainly', difficulty: 'urdu', pronunciation: 'be-shak' },
+        { id: 2104, hindi: 'तमाम', english: 'All / Complete / Entire', difficulty: 'urdu', pronunciation: 'tamaam' },
+        { id: 2105, hindi: 'आमतौर पर', english: 'Usually / Generally / Normally', difficulty: 'urdu', pronunciation: 'aamtaur par' },
+        { id: 2106, hindi: 'ख़ासतौर पर', english: 'Especially / Particularly', difficulty: 'urdu', pronunciation: 'khaastour par' },
+        { id: 2107, hindi: 'यार', english: 'Friend / Buddy (informal affectionate)', difficulty: 'urdu', pronunciation: 'yaar' },
+        { id: 2108, hindi: 'बेगम', english: 'Begum — lady / Wife (respectful title)', difficulty: 'urdu', pronunciation: 'begam' },
+        { id: 2109, hindi: 'ख़ास', english: 'Special / Particular / Exclusive', difficulty: 'urdu', pronunciation: 'khaas' },
+
+        // ── Cultural & Social ─────────────────────────────────────────
+        { id: 2110, hindi: 'बारात', english: 'Wedding procession of the groom', difficulty: 'urdu', pronunciation: 'baraat' },
+        { id: 2111, hindi: 'निकाह', english: 'Islamic marriage ceremony', difficulty: 'urdu', pronunciation: 'nikaah' },
+        { id: 2112, hindi: 'जहेज़', english: 'Dowry given by bride\'s family', difficulty: 'urdu', pronunciation: 'jahez' },
+        { id: 2113, hindi: 'मातम', english: 'Mourning / Grief / Lamentation', difficulty: 'urdu', pronunciation: 'maatam' },
+        { id: 2114, hindi: 'ज़ियारत', english: 'Visit to a holy shrine / Pilgrimage', difficulty: 'urdu', pronunciation: 'ziyaarat' },
+        { id: 2115, hindi: 'दावत', english: 'Feast / Formal dinner invitation', difficulty: 'urdu', pronunciation: 'daawat' },
+        { id: 2116, hindi: 'मेज़बानी', english: 'Hospitality / Act of hosting guests', difficulty: 'urdu', pronunciation: 'mezbani' },
+        { id: 2117, hindi: 'नज़राना', english: 'Gift / Tribute / Offering', difficulty: 'urdu', pronunciation: 'nazraana' },
+        { id: 2118, hindi: 'सोग़ात', english: 'Gift / Souvenir brought from a journey', difficulty: 'urdu', pronunciation: 'soughaat' },
+        { id: 2119, hindi: 'ख़ुशख़बरी', english: 'Good news / Happy tidings', difficulty: 'urdu', pronunciation: 'khushkhabari' },
+
+        // ── Body & Soul ───────────────────────────────────────────────
+        { id: 2120, hindi: 'नब्ज़', english: 'Pulse / Heartbeat', difficulty: 'urdu', pronunciation: 'nabz' },
+        { id: 2121, hindi: 'ज़ख्म', english: 'Wound / Deep injury', difficulty: 'urdu', pronunciation: 'zakhm' },
+        { id: 2122, hindi: 'आहट', english: 'Sound of approaching footsteps / Premonition', difficulty: 'urdu', pronunciation: 'aahat' },
+        { id: 2123, hindi: 'पेशानी', english: 'Forehead / Fate (figurative)', difficulty: 'urdu', pronunciation: 'peshaani' },
+        { id: 2124, hindi: 'धड़कन', english: 'Heartbeat / Throbbing', difficulty: 'urdu', pronunciation: 'dhadkan' },
+        { id: 2125, hindi: 'तन्हा', english: 'Alone / Lonely', difficulty: 'urdu', pronunciation: 'tanha' },
+        { id: 2126, hindi: 'नेक', english: 'Virtuous / Good / Righteous', difficulty: 'urdu', pronunciation: 'nek' },
+        { id: 2127, hindi: 'ख़ूबसूरत', english: 'Beautiful / Good-looking', difficulty: 'urdu', pronunciation: 'khubsurat' },
+        { id: 2128, hindi: 'बेहतर', english: 'Better', difficulty: 'urdu', pronunciation: 'behtar' },
+        { id: 2129, hindi: 'बदतर', english: 'Worse', difficulty: 'urdu', pronunciation: 'badtar' },
+
+        // ── Music & Arts ──────────────────────────────────────────────
+        { id: 2130, hindi: 'ताल', english: 'Rhythm / Beat (in music)', difficulty: 'urdu', pronunciation: 'taal' },
+        { id: 2131, hindi: 'सुर', english: 'Musical note / Melody / Tune', difficulty: 'urdu', pronunciation: 'sur' },
+        { id: 2132, hindi: 'राग', english: 'Raag — classical Indian musical mode', difficulty: 'urdu', pronunciation: 'raag' },
+        { id: 2133, hindi: 'क़व्वाली', english: 'Qawwali — Sufi devotional music', difficulty: 'urdu', pronunciation: 'qawwali' },
+        { id: 2134, hindi: 'रागिनी', english: 'Ragini — feminine variation of a raag', difficulty: 'urdu', pronunciation: 'raagini' },
+        { id: 2135, hindi: 'ठुमरी', english: 'Thumri — light classical Hindustani vocal form', difficulty: 'urdu', pronunciation: 'thumri' },
+
+        // ── Commerce & Economy ────────────────────────────────────────
+        { id: 2136, hindi: 'तनख़्वाह', english: 'Salary / Monthly pay', difficulty: 'urdu', pronunciation: 'tankhwah' },
+        { id: 2137, hindi: 'मुनाफ़ा', english: 'Profit', difficulty: 'urdu', pronunciation: 'munafa' },
+        { id: 2138, hindi: 'घाटा', english: 'Loss / Deficit', difficulty: 'urdu', pronunciation: 'ghaata' },
+        { id: 2139, hindi: 'सौदागर', english: 'Merchant / Trader', difficulty: 'urdu', pronunciation: 'saudagar' },
+        { id: 2140, hindi: 'तिजारत', english: 'Trade / Commerce', difficulty: 'urdu', pronunciation: 'tijaarat' },
+        { id: 2141, hindi: 'ज़मानत', english: 'Guarantee / Surety / Bail', difficulty: 'urdu', pronunciation: 'zamanat' },
+        { id: 2142, hindi: 'तसल्ली', english: 'Consolation / Comfort / Relief', difficulty: 'urdu', pronunciation: 'tasalli' },
+        { id: 2143, hindi: 'हिसाब', english: 'Calculation / Account / Reckoning', difficulty: 'urdu', pronunciation: 'hisaab' },
+
+        // ── Royalty & Nobility ────────────────────────────────────────
+        { id: 2144, hindi: 'शहज़ादा', english: 'Prince', difficulty: 'urdu', pronunciation: 'shahzaada' },
+        { id: 2145, hindi: 'शहज़ादी', english: 'Princess', difficulty: 'urdu', pronunciation: 'shahzaadi' },
+        { id: 2146, hindi: 'जागीर', english: 'Jagir — hereditary estate / Land holding', difficulty: 'urdu', pronunciation: 'jaageer' },
+        { id: 2147, hindi: 'सरदार', english: 'Chief / Leader / Commander', difficulty: 'urdu', pronunciation: 'sardaar' },
+        { id: 2148, hindi: 'ख़ान', english: 'Khan — title of nobility', difficulty: 'urdu', pronunciation: 'khaan' },
+
+        // ── Political & Social ────────────────────────────────────────
+        { id: 2149, hindi: 'ज़िंदाबाद', english: 'Long live! / Cheering slogan', difficulty: 'urdu', pronunciation: 'zindabaad' },
+        { id: 2150, hindi: 'मुर्दाबाद', english: 'Down with! / Protest slogan', difficulty: 'urdu', pronunciation: 'murdabaad' },
+        { id: 2151, hindi: 'इंक़लाब', english: 'Revolution / Uprising', difficulty: 'urdu', pronunciation: 'inqilaab' },
+        { id: 2152, hindi: 'ख़िदमत', english: 'Service / Duty / Care for others', difficulty: 'urdu', pronunciation: 'khidmat' },
+        { id: 2153, hindi: 'रहमत', english: 'Mercy / Compassion / Divine grace', difficulty: 'urdu', pronunciation: 'rahmat' },
+
+        // ── Wisdom & Character ────────────────────────────────────────
+        { id: 2154, hindi: 'नेकी', english: 'Goodness / Virtue / Good deeds', difficulty: 'urdu', pronunciation: 'neki' },
+        { id: 2155, hindi: 'सब्र', english: 'Patience / Forbearance', difficulty: 'urdu', pronunciation: 'sabr' },
+        { id: 2156, hindi: 'शुक्र', english: 'Gratitude / Thankfulness (to God)', difficulty: 'urdu', pronunciation: 'shukr' },
+        { id: 2157, hindi: 'अक्ल', english: 'Intelligence / Wisdom / Common sense', difficulty: 'urdu', pronunciation: 'aql' },
+        { id: 2158, hindi: 'जहालत', english: 'Ignorance / Lack of knowledge', difficulty: 'urdu', pronunciation: 'jahalat' },
+        { id: 2159, hindi: 'हमदर्दी', english: 'Sympathy / Compassion', difficulty: 'urdu', pronunciation: 'hamdardi' },
+        { id: 2160, hindi: 'दिलचस्प', english: 'Interesting / Fascinating', difficulty: 'urdu', pronunciation: 'dilchasp' },
+        { id: 2161, hindi: 'ज़हीन', english: 'Intelligent / Clever / Sharp-minded', difficulty: 'urdu', pronunciation: 'zaheen' },
+        { id: 2162, hindi: 'लायक़', english: 'Worthy / Capable / Deserving', difficulty: 'urdu', pronunciation: 'laayaq' },
+        { id: 2163, hindi: 'नालायक़', english: 'Worthless / Incapable / Undeserving', difficulty: 'urdu', pronunciation: 'nalaayaq' },
+        { id: 2164, hindi: 'ख़ुशनसीब', english: 'Fortunate / Lucky', difficulty: 'urdu', pronunciation: 'khushnaseeb' },
+        { id: 2165, hindi: 'बदनसीब', english: 'Unfortunate / Unlucky', difficulty: 'urdu', pronunciation: 'badnaseeb' },
+        { id: 2166, hindi: 'गुज़ारा', english: 'Getting by / Basic livelihood / Sustenance', difficulty: 'urdu', pronunciation: 'guzaara' },
+        { id: 2167, hindi: 'ख़ानाबदोश', english: 'Nomad / One with no permanent home', difficulty: 'urdu', pronunciation: 'khaanaabadosh' },
+        { id: 2168, hindi: 'परवाह', english: 'Care / Concern / To bother about', difficulty: 'urdu', pronunciation: 'parwah' },
+
+        // ── More Important Urdu ───────────────────────────────────────
+        { id: 2169, hindi: 'जुल्म', english: 'Oppression / Cruelty / Injustice', difficulty: 'urdu', pronunciation: 'zulm' },
+        { id: 2170, hindi: 'ज़ालिम', english: 'Cruel / Oppressor / Tyrant', difficulty: 'urdu', pronunciation: 'zaalim' },
+        { id: 2171, hindi: 'मज़लूम', english: 'Oppressed / Victim / Helpless', difficulty: 'urdu', pronunciation: 'mazloom' },
+        { id: 2172, hindi: 'ग़रीबी', english: 'Poverty', difficulty: 'urdu', pronunciation: 'gharibi' },
+        { id: 2173, hindi: 'रोज़गार', english: 'Employment / Livelihood', difficulty: 'urdu', pronunciation: 'rozgaar' },
+        { id: 2174, hindi: 'आवारा', english: 'Wanderer / Vagrant / Carefree drifter', difficulty: 'urdu', pronunciation: 'aawaara' },
+        { id: 2175, hindi: 'मुक़ाम', english: 'Station / Position / Destination', difficulty: 'urdu', pronunciation: 'muqaam' },
+        { id: 2176, hindi: 'पड़ाव', english: 'Camp / Halt / Rest stop on a journey', difficulty: 'urdu', pronunciation: 'padaav' },
+        { id: 2177, hindi: 'क़ाफ़िला', english: 'Caravan / Group travelling together', difficulty: 'urdu', pronunciation: 'qaafila' },
+        { id: 2178, hindi: 'बंजारा', english: 'Nomadic trader / Gypsy / Free spirit', difficulty: 'urdu', pronunciation: 'banjara' },
+        { id: 2179, hindi: 'सराय', english: 'Inn / Caravanserai / Rest house', difficulty: 'urdu', pronunciation: 'saraaee' },
+        { id: 2180, hindi: 'क़िला', english: 'Fort / Castle', difficulty: 'urdu', pronunciation: 'qila' },
+        { id: 2181, hindi: 'ख़ामोश', english: 'Silent / Quiet (adjective)', difficulty: 'urdu', pronunciation: 'khaamosh' },
+        { id: 2182, hindi: 'हंगामा', english: 'Commotion / Uproar / Scene', difficulty: 'urdu', pronunciation: 'hangaama' },
+        { id: 2183, hindi: 'मशवरा', english: 'Advice / Consultation', difficulty: 'urdu', pronunciation: 'mashwara' },
+        { id: 2184, hindi: 'इल्म', english: 'Knowledge / Learning / Science', difficulty: 'urdu', pronunciation: 'ilm' },
+        { id: 2185, hindi: 'ख़ुद्दार', english: 'Self-respecting / Dignified / Too proud to beg', difficulty: 'urdu', pronunciation: 'khuddar' },
+        { id: 2186, hindi: 'आबरू', english: 'Honour / Reputation / Dignity', difficulty: 'urdu', pronunciation: 'aabroo' },
+        { id: 2187, hindi: 'लाज', english: 'Shame / Modesty / Sense of honour', difficulty: 'urdu', pronunciation: 'laaj' },
+        { id: 2188, hindi: 'एहतराम', english: 'Respect / Reverence', difficulty: 'urdu', pronunciation: 'ehtiraam' },
+        { id: 2189, hindi: 'सब्रो-शुक्र', english: 'Patience and gratitude (common Urdu pairing)', difficulty: 'urdu', pronunciation: 'sabr-o-shukr' },
+        { id: 2190, hindi: 'क़सम', english: 'Oath / Vow / Swear', difficulty: 'urdu', pronunciation: 'qasam' },
+        { id: 2191, hindi: 'क़सूर', english: 'Fault / Mistake / Blame', difficulty: 'urdu', pronunciation: 'qasoor' },
+        { id: 2192, hindi: 'रुसवाई', english: 'Disgrace / Humiliation / Scandal', difficulty: 'urdu', pronunciation: 'ruswai' },
+        { id: 2193, hindi: 'सरफ़राज़', english: 'Honoured / Elevated / Exalted', difficulty: 'urdu', pronunciation: 'sarfaraaz' },
+        { id: 2194, hindi: 'ख़ुद्दारी', english: 'Self-respect / Pride in independence', difficulty: 'urdu', pronunciation: 'khuddaari' },
+        { id: 2195, hindi: 'बेबाक', english: 'Outspoken / Frank / Fearless', difficulty: 'urdu', pronunciation: 'bebaak' },
+        { id: 2196, hindi: 'ख़ानदान', english: 'Family lineage / Dynasty / Noble family', difficulty: 'urdu', pronunciation: 'khaandaan' },
+        { id: 2197, hindi: 'ऐतबार', english: 'Trust / Credibility / Reliability', difficulty: 'urdu', pronunciation: 'aitbaar' },
+        { id: 2198, hindi: 'बेऐतबार', english: 'Untrustworthy / Unreliable', difficulty: 'urdu', pronunciation: 'be-aitbaar' },
+        { id: 2199, hindi: 'गुज़िश्ता', english: 'Past / Previous / Bygone', difficulty: 'urdu', pronunciation: 'guzishta' },
+        { id: 2200, hindi: 'मुसलसल', english: 'Continuous / Ongoing / Serial', difficulty: 'urdu', pronunciation: 'musalsal' },
+        { id: 2201, hindi: 'दिलासा', english: 'Consolation / Comfort / Reassurance', difficulty: 'urdu', pronunciation: 'dilaasa' },
+        { id: 2202, hindi: 'ख़ुशगवार', english: 'Pleasant / Agreeable / Enjoyable', difficulty: 'urdu', pronunciation: 'khushgawaar' },
+        { id: 2203, hindi: 'नागवार', english: 'Unpleasant / Distasteful / Offensive', difficulty: 'urdu', pronunciation: 'naagawaar' },
+        { id: 2204, hindi: 'बेमिसाल', english: 'Matchless / Unparalleled / Unique', difficulty: 'urdu', pronunciation: 'bemisaal' },
+        { id: 2205, hindi: 'लाजवाब', english: 'Unanswerable / Excellent / Speechless', difficulty: 'urdu', pronunciation: 'laajawab' }
       ];
 
       await storage.setItem('words', JSON.stringify(this.words));

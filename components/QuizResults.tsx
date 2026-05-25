@@ -4,7 +4,7 @@ import { useAppContext } from '../contexts/AppContext';
 
 interface QuizResultsProps {
   score: { correct: number; total: number };
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar';
   onRetry: () => void;
   onBack: () => void;
 }

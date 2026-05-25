@@ -1,135 +1,148 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 
-interface StudyReminderSettings {
-  enabled: boolean;
-  times: string[]; // Array of times in 'HH:mm' format
-  days: number[]; // Array of day numbers (0 = Sunday, 6 = Saturday)
-  message: string;
-}
+const PERMISSION_ASKED_KEY = 'notifications_permission_asked';
+const REMINDER_SCHEDULED_KEY = 'daily_reminder_scheduled';
+
+// How notifications look when app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 class NotificationService {
   private isInitialized = false;
-  
+
   async initialize(): Promise<boolean> {
     if (this.isInitialized) return true;
-    
-    try {
-      // Web-compatible initialization
-      // console.log('Notification service initialized (web-compatible mode)');
+    if (Platform.OS === 'web') {
       this.isInitialized = true;
       return true;
-    } catch (error) {
-      // console.error('Error initializing notifications:', error);
+    }
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      this.isInitialized = true;
+      return status === 'granted';
+    } catch {
+      this.isInitialized = true;
       return false;
     }
   }
-  
-  async scheduleStudyReminders(settings: StudyReminderSettings): Promise<void> {
-    if (!this.isInitialized) {
-      const initialized = await this.initialize();
-      if (!initialized) return;
-    }
-    
-    // console.log('Scheduling study reminders:', settings);
-    await AsyncStorage.setItem('study-reminders', JSON.stringify(settings));
-    
-    // For web, we could implement browser notifications
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission !== 'granted') {
-        await Notification.requestPermission();
-      }
-    }
-  }
-  
-  async cancelStudyReminders(): Promise<void> {
-    // console.log('Cancelling study reminders');
-    await AsyncStorage.removeItem('study-reminders');
-  }
-  
-  async scheduleStreakReminder(): Promise<void> {
-    if (!this.isInitialized) {
-      const initialized = await this.initialize();
-      if (!initialized) return;
-    }
-    
-    // console.log('Scheduling streak reminder for tomorrow');
-  }
-  
-  async sendImmediateNotification(title: string, body: string, data?: any): Promise<void> {
-    if (!this.isInitialized) {
-      const initialized = await this.initialize();
-      if (!initialized) return;
-    }
-    
-    // console.log(`Notification: ${title} - ${body}`);
-    
-    // Web browser notification fallback
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'granted') {
-        new Notification(title, { body });
-      }
-    }
-  }
-  
-  async getScheduledReminders(): Promise<any[]> {
-    return []; // Return empty array for web compatibility
-  }
-  
-  async getSavedSettings(): Promise<StudyReminderSettings | null> {
+
+  // Call this on first app launch (after onboarding)
+  async requestPermissionIfNeeded(): Promise<boolean> {
+    if (Platform.OS === 'web') return false;
     try {
-      const settings = await AsyncStorage.getItem('study-reminders');
-      return settings ? JSON.parse(settings) : null;
+      const alreadyAsked = await AsyncStorage.getItem(PERMISSION_ASKED_KEY);
+      if (alreadyAsked) {
+        const { status } = await Notifications.getPermissionsAsync();
+        return status === 'granted';
+      }
+
+      const { status } = await Notifications.requestPermissionsAsync();
+      await AsyncStorage.setItem(PERMISSION_ASKED_KEY, 'true');
+      return status === 'granted';
     } catch {
-      return null;
+      return false;
     }
   }
-  
-  // Celebration notifications
+
+  // Schedule a daily 8pm reminder to practice
+  async scheduleDailyReminder(): Promise<void> {
+    if (Platform.OS === 'web') return;
+    try {
+      const granted = await this.requestPermissionIfNeeded();
+      if (!granted) return;
+
+      const alreadyScheduled = await AsyncStorage.getItem(REMINDER_SCHEDULED_KEY);
+      if (alreadyScheduled) return;
+
+      await Notifications.cancelAllScheduledNotificationsAsync();
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: 'Time to practice Hindi! 🙏',
+          body: 'Keep your streak alive — just 5 minutes a day makes a big difference.',
+          sound: false,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour: 20,
+          minute: 0,
+        },
+      });
+
+      await AsyncStorage.setItem(REMINDER_SCHEDULED_KEY, 'true');
+    } catch (error) {
+      console.error('Failed to schedule daily reminder:', error);
+    }
+  }
+
+  async cancelDailyReminder(): Promise<void> {
+    if (Platform.OS === 'web') return;
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      await AsyncStorage.removeItem(REMINDER_SCHEDULED_KEY);
+    } catch {}
+  }
+
+  async sendImmediateNotification(title: string, body: string): Promise<void> {
+    if (Platform.OS === 'web') return;
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== 'granted') return;
+
+      await Notifications.scheduleNotificationAsync({
+        content: { title, body, sound: false },
+        trigger: null, // fires immediately
+      });
+    } catch {}
+  }
+
   async sendCelebrationNotification(achievement: string): Promise<void> {
-    const celebrations = {
+    const map: Record<string, { title: string; body: string }> = {
       'level-completed': {
         title: '🎉 Level Complete!',
-        body: `Congratulations! You've mastered the ${achievement} level!`,
+        body: `You've mastered the ${achievement} level!`,
       },
       'streak-milestone': {
         title: '🔥 Streak Milestone!',
-        body: `Amazing! You've maintained a ${achievement}-day learning streak!`,
+        body: `Amazing! You've kept a ${achievement}-day learning streak!`,
       },
       'daily-goal': {
-        title: '✅ Daily Goal Achieved!',
-        body: 'Great work! You\'ve completed your daily Hindi practice.',
+        title: '✅ Daily Goal Done!',
+        body: "Great work! You've completed today's Hindi practice.",
       },
       'perfect-score': {
         title: '💯 Perfect Score!',
-        body: 'Outstanding! You got every word right in this session.',
+        body: 'Outstanding! You got every word right!',
       },
     };
-    
-    const celebration = celebrations[achievement as keyof typeof celebrations];
-    if (celebration) {
-      await this.sendImmediateNotification(celebration.title, celebration.body, {
-        type: 'celebration',
-        achievement,
-      });
-    }
+
+    const c = map[achievement];
+    if (c) await this.sendImmediateNotification(c.title, c.body);
+  }
+
+  // Legacy stubs kept for backward compatibility
+  async scheduleStudyReminders(): Promise<void> {
+    await this.scheduleDailyReminder();
+  }
+
+  async cancelStudyReminders(): Promise<void> {
+    await this.cancelDailyReminder();
+  }
+
+  async scheduleStreakReminder(): Promise<void> {
+    await this.scheduleDailyReminder();
   }
 }
 
 export const notificationService = new NotificationService();
-
-// Utility functions for common notification scenarios
-export const scheduleDefaultStudyReminders = async () => {
-  const defaultSettings: StudyReminderSettings = {
-    enabled: true,
-    times: ['09:00', '18:00'], // 9 AM and 6 PM
-    days: [1, 2, 3, 4, 5], // Monday to Friday
-    message: '📚 Time for your daily Hindi practice! 🌟',
-  };
-  
-  await notificationService.scheduleStudyReminders(defaultSettings);
-};
-
-export const handleNotificationResponse = (response: any) => {
-  // console.log('Notification response handled:', response);
-};
+export const scheduleDefaultStudyReminders = () => notificationService.scheduleDailyReminder();
+export const handleNotificationResponse = (_response: unknown) => {};

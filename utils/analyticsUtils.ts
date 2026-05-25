@@ -3,7 +3,7 @@ import { databaseService } from '../database/database';
 
 class AnalyticsManager {
   private listeners: ((analytics: any) => void)[] = [];
-  private refreshTimer: NodeJS.Timeout | null = null;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   public addListener(listener: (analytics: any) => void) {
     this.listeners.push(listener);

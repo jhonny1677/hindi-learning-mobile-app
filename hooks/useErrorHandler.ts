@@ -123,7 +123,7 @@ export function useErrorHandler(): UseErrorHandlerReturn {
       } catch (err) {
         const appError: AppError = {
           message: formatErrorMessage(err),
-          code: err?.code || err?.name,
+          code: (err as any)?.code || (err as any)?.name,
           severity: determineErrorSeverity(err),
           context,
           timestamp: Date.now(),

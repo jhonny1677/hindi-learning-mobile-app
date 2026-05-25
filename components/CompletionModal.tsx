@@ -10,7 +10,7 @@ import {
 
 interface CompletionModalProps {
   visible: boolean;
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | null;
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'alphabet' | 'grammar' | null;
   onClose: () => void;
   onContinue?: () => void;
   onNextLevel?: () => void;
