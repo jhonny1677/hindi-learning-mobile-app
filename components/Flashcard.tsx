@@ -24,6 +24,16 @@ interface FlashcardProps {
 
 const { width } = Dimensions.get('window');
 
+const DIFFICULTY_COLORS: Record<string, { front: string; frontDark: string }> = {
+  beginner:     { front: '#16A34A', frontDark: '#15803D' },
+  intermediate: { front: '#F59E0B', frontDark: '#D97706' },
+  advanced:     { front: '#2563EB', frontDark: '#1D4ED8' },
+  expert:       { front: '#DC2626', frontDark: '#B91C1C' },
+  alphabet:     { front: '#7C3AED', frontDark: '#6D28D9' },
+  grammar:      { front: '#DB2777', frontDark: '#BE185D' },
+  urdu:         { front: '#C2410C', frontDark: '#9A3412' },
+};
+
 const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onIncorrect, onCompletionCheck }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnimation] = useState(new Animated.Value(0));
@@ -129,6 +139,9 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
     setStartTime(Date.now());
   };
 
+  const cardColors = DIFFICULTY_COLORS[word.difficulty] ?? DIFFICULTY_COLORS.beginner;
+  const frontColor = darkMode ? cardColors.frontDark : cardColors.front;
+
   return (
     <View style={[styles.container, darkMode && styles.darkContainer]}>
       <TouchableOpacity
@@ -138,7 +151,7 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
         accessibilityRole="button"
         accessibilityHint={isFlipped ? 'Flips card back to Hindi' : 'Reveals the English meaning'}
       >
-        <Animated.View style={[styles.card, darkMode ? styles.darkCardFront : styles.cardFront, frontAnimatedStyle]}>
+        <Animated.View style={[styles.card, { backgroundColor: frontColor }, frontAnimatedStyle]}>
           <Text style={styles.cardLabel}>Hindi Word</Text>
           <View style={styles.hindiContainer}>
             <Text style={styles.hindiText}>{word.hindi}</Text>
@@ -164,7 +177,7 @@ const Flashcard = memo<FlashcardProps>(function Flashcard({ word, onCorrect, onI
           <Text style={styles.tapHint}>👆 Tap to reveal English meaning</Text>
         </Animated.View>
         
-        <Animated.View style={[styles.card, darkMode ? styles.darkCardBack : styles.cardBack, backAnimatedStyle]}>
+        <Animated.View style={[styles.card, styles.cardBack, backAnimatedStyle]}>
           <Text style={styles.cardLabel}>English Meaning</Text>
           <Text style={styles.englishText}>{word.english}</Text>
           {word.pronunciation && (
@@ -239,14 +252,8 @@ const styles = StyleSheet.create({
   cardFront: {
     backgroundColor: '#4F46E5',
   },
-  darkCardFront: {
-    backgroundColor: '#6366F1',
-  },
   cardBack: {
-    backgroundColor: '#059669',
-  },
-  darkCardBack: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#0F766E',
   },
   cardLabel: {
     fontSize: 16,

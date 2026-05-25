@@ -423,44 +423,71 @@ const App = () => {
   };
 
 
+  const doReset = async () => {
+    try {
+      await databaseService.clearAllProgress();
+      await webStorage.removeItem('hindi_learning_daily_stats');
+      await webStorage.removeItem('hindi_learning_streak');
+      await webStorage.removeItem('hindi_learning_xp');
+      await webStorage.removeItem('hindi_learning_badges');
+      await webStorage.removeItem('hindi_learning_quests');
+      await webStorage.removeItem('hindi_learning_achievements');
+      await webStorage.removeItem('hindi_learning_leaderboard');
+      setCurrentWord(null);
+      setDifficulty(null);
+      setIsLearning(false);
+      setIsQuizMode(false);
+      setCompletionModal({ visible: false, difficulty: null });
+      setQuizResults(null);
+      setShowAnalytics(false);
+      setShowWordProgress(null);
+      setRealTimeStats({ wordsLearned: 0, studyTime: 0, streak: 0 });
+      setStreak(0);
+      if (Platform.OS === 'web') {
+        window.alert('All progress has been reset.');
+      } else {
+        Alert.alert('Done', 'All progress has been reset.');
+      }
+    } catch (error) {
+      console.error('Failed to reset progress:', error);
+      if (Platform.OS === 'web') {
+        window.alert('Failed to reset progress. Please try again.');
+      } else {
+        Alert.alert('Error', 'Failed to reset progress. Please try again.');
+      }
+    }
+  };
+
   const handleReset = () => {
-    Alert.alert(
-      'Reset All Progress',
-      'Are you sure? This will erase all your learned words, streaks, XP, badges and quests. This cannot be undone.',
-      [
+    if (Platform.OS === 'web') {
+      if (window.confirm('Reset All Progress\n\nThis will erase all your learned words, streaks, XP, badges and quests. This cannot be undone.')) {
+        doReset();
+      }
+    } else {
+      Alert.alert(
+        'Reset All Progress',
+        'Are you sure? This will erase all your learned words, streaks, XP, badges and quests. This cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Reset', style: 'destructive', onPress: doReset },
+        ]
+      );
+    }
+  };
+
+  const handleLogout = async () => {
+    const doLogout = async () => {
+      await webStorage.removeItem('hindi_learning_user');
+      setCurrentUser(null);
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm('Sign out of your account?')) doLogout();
+    } else {
+      Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await databaseService.clearAllProgress();
-              await webStorage.removeItem('hindi_learning_daily_stats');
-              await webStorage.removeItem('hindi_learning_streak');
-              await webStorage.removeItem('hindi_learning_xp');
-              await webStorage.removeItem('hindi_learning_badges');
-              await webStorage.removeItem('hindi_learning_quests');
-              await webStorage.removeItem('hindi_learning_achievements');
-              await webStorage.removeItem('hindi_learning_leaderboard');
-              setCurrentWord(null);
-              setDifficulty(null);
-              setIsLearning(false);
-              setIsQuizMode(false);
-              setCompletionModal({ visible: false, difficulty: null });
-              setQuizResults(null);
-              setShowAnalytics(false);
-              setShowWordProgress(null);
-              setRealTimeStats({ wordsLearned: 0, studyTime: 0, streak: 0 });
-              setStreak(0);
-              Alert.alert('Done', 'All progress has been reset.');
-            } catch (error) {
-              console.error('Failed to reset progress:', error);
-              Alert.alert('Error', 'Failed to reset progress. Please try again.');
-            }
-          },
-        },
-      ]
-    );
+        { text: 'Sign Out', style: 'destructive', onPress: doLogout },
+      ]);
+    }
   };
 
   if (showAnalytics) {
@@ -611,14 +638,21 @@ const App = () => {
                 <Text style={styles.topButtonText}>🏆 Quests</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.topButton}
-                onPress={() => setShowAuth(true)}
-              >
-                <Text style={styles.topButtonText}>
-                  {currentUser ? '👤 Account' : '🔑 Sign In'}
-                </Text>
-              </TouchableOpacity>
+              {currentUser && currentUser.loginMethod !== 'guest' ? (
+                <TouchableOpacity
+                  style={[styles.topButton, { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5' }]}
+                  onPress={handleLogout}
+                >
+                  <Text style={[styles.topButtonText, { color: '#DC2626' }]}>🚪 Sign Out</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.topButton}
+                  onPress={() => setShowAuth(true)}
+                >
+                  <Text style={styles.topButtonText}>🔑 Sign In</Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity 
                 style={styles.topButton}
