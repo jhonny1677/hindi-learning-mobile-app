@@ -36,6 +36,23 @@ Seekho Hindi helps users learn Hindi through spaced-repetition flashcards, multi
 - Dark mode with persisted preference
 - Reset All Progress option in Profile tab Danger Zone
 
+## Screenshots
+
+### Home & Streak
+| Light Mode | Dark Mode | Start Session |
+|:---:|:---:|:---:|
+| ![Home light](screenshots/home_light.jpg) | ![Home dark](screenshots/home_dark.jpg) | ![Start session](screenshots/home_start_session.jpg) |
+
+### Levels & Flashcards
+| Levels | Foundation | Flashcard Front | Flashcard Back |
+|:---:|:---:|:---:|:---:|
+| ![Levels](screenshots/levels_main.jpg) | ![Foundation](screenshots/levels_foundation.jpg) | ![Flashcard front](screenshots/flashcard_front.jpg) | ![Flashcard back](screenshots/flashcard_back.jpg) |
+
+### Phrases & Profile
+| Phrases (Greetings) | Phrases (Questions) | Profile | Profile Settings |
+|:---:|:---:|:---:|:---:|
+| ![Phrases greetings](screenshots/phrases_greetings.jpg) | ![Phrases questions](screenshots/phrases_questions.jpg) | ![Profile signed in](screenshots/profile_signed_in.jpg) | ![Profile danger zone](screenshots/profile_danger_zone.jpg) |
+
 ## Project Structure
 
     HindiLearningApp/
